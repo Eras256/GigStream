@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/" },
+    {
+      "src": "/api/(.*)",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_SOMNIA_RPC_URL": "@somnia_rpc",
+    "NEXT_PUBLIC_REOWN_PROJECT_ID": "@reown_project_id",
+    "GOOGLE_GENERATIVE_AI_API_KEY": "@gemini_key"
+  }
+}
+
