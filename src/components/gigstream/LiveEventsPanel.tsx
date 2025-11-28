@@ -2,7 +2,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEventStream } from '@/hooks/useEventStream'
+import { useEventStream, StreamEvent } from '@/hooks/useEventStream'
 import { formatEther } from 'viem'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
@@ -34,7 +34,11 @@ export default function LiveEventsPanel({
   const cancellationsStream = useEventStream('cancellations', true)
   const reputationStream = useEventStream('reputation', true)
 
-  const allEvents = [
+  interface EventWithStreamType extends StreamEvent {
+    streamType: 'jobs' | 'bids' | 'completions' | 'cancellations' | 'reputation'
+  }
+
+  const allEvents: EventWithStreamType[] = [
     ...jobsStream.events.map(e => ({ ...e, streamType: 'jobs' as const })),
     ...bidsStream.events.map(e => ({ ...e, streamType: 'bids' as const })),
     ...completionsStream.events.map(e => ({ ...e, streamType: 'completions' as const })),
