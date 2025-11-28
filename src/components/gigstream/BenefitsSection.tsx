@@ -17,7 +17,7 @@ export default function BenefitsSection() {
       highlight: 'Instant payments'
     },
     {
-      text: 'Build verifiable, portable reputation on-chain with ZK proofs',
+      text: 'Build verifiable, portable reputation on-chain with ERC-20 reputation tokens',
       icon: Award,
       highlight: 'On-chain reputation'
     },
@@ -37,9 +37,9 @@ export default function BenefitsSection() {
       highlight: 'Secure escrow'
     },
     {
-      text: 'Privacy-preserving ZK reputation system protects your identity',
+      text: 'Transparent on-chain reputation system with verifiable work history',
       icon: Lock,
-      highlight: 'ZK privacy'
+      highlight: 'On-chain reputation'
     },
     {
       text: 'AI-powered job matching finds the best opportunities for your skills',

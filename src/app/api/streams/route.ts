@@ -132,15 +132,15 @@ export async function GET(req: NextRequest) {
             onLogs: async (logs) => {
               for (const log of logs) {
                 const jobData = {
-                  type: 'JobPosted',
+                      type: 'JobPosted',
                   jobId: log.args.jobId?.toString() || '',
                   employer: log.args.employer || '',
                   title: log.args.title || '',
                   reward: log.args.reward?.toString() || '0',
                   deadline: log.args.deadline?.toString() || '0',
-                  blockNumber: log.blockNumber?.toString(),
-                  transactionHash: log.transactionHash,
-                  timestamp: Date.now()
+                      blockNumber: log.blockNumber?.toString(),
+                      transactionHash: log.transactionHash,
+                      timestamp: Date.now()
                 }
 
                 // Stream the event to client

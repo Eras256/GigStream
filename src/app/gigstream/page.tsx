@@ -74,8 +74,8 @@ export default function GigStreamDashboard() {
                 </h1>
                 <div className="flex items-center space-x-3 mt-2">
                   <p className="text-white/70 font-mono">
-                    Live SDS Streams • {jobsCount} active jobs
-                  </p>
+                  Live SDS Streams • {jobsCount} active jobs
+                </p>
                   {sdsJobs.length > 0 && (
                     <SDSJobsIndicator publisher={address} showCount={true} />
                   )}

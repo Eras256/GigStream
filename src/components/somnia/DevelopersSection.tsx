@@ -36,8 +36,8 @@ export default function DevelopersSection() {
   const quickstarts = [
     { name: 'Remix IDE', icon: Code, href: 'https://remix.ethereum.org' },
     { name: 'VSCode', icon: Code, href: '#' },
-    { name: 'Hardhat', icon: Code, href: '#' },
-    { name: 'Foundry', icon: Code, href: '#' }
+    { name: 'Hardhat', icon: Code, href: 'https://hardhat.org', featured: true },
+    { name: 'Foundry', icon: Code, href: 'https://book.getfoundry.sh' }
   ]
 
   return (
@@ -64,7 +64,8 @@ export default function DevelopersSection() {
             </span>
           </h2>
           <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed">
-            EVM Compatible: Use Solidity, Hardhat, Foundry as-is. 
+            Built with <span className="text-somnia-cyan font-semibold">Hardhat</span> and <span className="text-somnia-cyan font-semibold">Solidity 0.8.29</span>. 
+            EVM Compatible: Use existing tools like Remix, VSCode, Foundry, or Hardhat. 
             <span className="text-somnia-cyan font-semibold"> Build on GigStream MX with familiar tools.</span>
           </p>
         </motion.div>
@@ -89,10 +90,15 @@ export default function DevelopersSection() {
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 backdrop-blur-xl bg-white/5 border border-somnia-cyan/20 rounded-xl text-white font-medium hover:border-somnia-cyan/50 transition-all flex items-center space-x-2"
+                className={`px-8 py-4 backdrop-blur-xl ${
+                  (item as any).featured 
+                    ? 'bg-gradient-to-r from-somnia-cyan/20 to-somnia-purple/20 border-somnia-cyan/40' 
+                    : 'bg-white/5 border-somnia-cyan/20'
+                } border rounded-xl text-white font-medium hover:border-somnia-cyan/50 transition-all flex items-center space-x-2`}
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.name}</span>
+                {(item as any).featured && <span className="text-xs bg-somnia-cyan/30 px-2 py-0.5 rounded-full">Used</span>}
                 <ExternalLink className="w-4 h-4" />
               </motion.a>
             ))}
