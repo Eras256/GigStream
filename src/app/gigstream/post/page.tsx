@@ -9,6 +9,7 @@ import { parseEther, formatEther } from 'viem'
 import { useGemini } from '@/providers/GeminiProvider'
 import { useToast } from '@/components/ui/use-toast'
 import { useGigStream } from '@/hooks/useGigStream'
+import { useTransactionNotification } from '@/hooks/useTransactionNotification'
 import Navbar from '@/components/somnia/Navbar'
 import Footer from '@/components/somnia/Footer'
 import LocationSelector from '@/components/gigstream/LocationSelector'
@@ -20,6 +21,7 @@ export default function PostJob() {
   const { generateText } = useGemini()
   const { showToast } = useToast()
   const { jobCounter } = useGigStream()
+  const { showSuccess, showError, showPending, NotificationComponents } = useTransactionNotification()
   
   // Check user balance
   const { data: balance, isLoading: balanceLoading } = useBalance({
@@ -197,19 +199,19 @@ export default function PostJob() {
         // Ensure address is properly formatted (trim and validate)
         const contractAddress = GIGESCROW_ADDRESS.trim() as `0x${string}`
         if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-          showToast({ 
-            title: "Error", 
-            description: "Contract not deployed. Configure NEXT_PUBLIC_GIGESCROW_ADDRESS" 
-          })
+          showError(
+            "Contract Error",
+            "Contract not deployed. Configure NEXT_PUBLIC_GIGESCROW_ADDRESS"
+          )
           return
         }
         
         // Validate address format
         if (!contractAddress.startsWith('0x') || contractAddress.length !== 42) {
-          showToast({ 
-            title: "Error", 
-            description: "Invalid contract address format" 
-          })
+          showError(
+            "Invalid Contract",
+            "Invalid contract address format"
+          )
           return
         }
 
@@ -219,10 +221,10 @@ export default function PostJob() {
         // Validate deadline is at least 1 day in the future (contract requirement)
         const minDeadline = Math.floor(Date.now() / 1000) + 86400 // 1 day
         if (deadlineTimestamp < minDeadline) {
-          showToast({ 
-            title: "Invalid deadline", 
-            description: "Deadline must be at least 1 day from now" 
-          })
+          showError(
+            "Invalid Deadline",
+            "Deadline must be at least 1 day from now"
+          )
           return
         }
         
@@ -241,17 +243,25 @@ export default function PostJob() {
           ]
         })
 
+        // Show pending notification
+        showPending(
+          "Posting Job...",
+          "Please confirm the transaction in your wallet"
+        )
+
         const hash = await sendTransactionAsync({
           to: contractAddress,
           value: rewardAmount,
           data: data as `0x${string}`,
         })
 
-        showToast({
-          title: "Job posted!",
-          description: `Transaction submitted: ${hash.slice(0, 10)}...`,
-          duration: 5000
-        })
+        // Show success notification with transaction hash
+        showSuccess(
+          "Job Posted Successfully!",
+          "Your job has been posted to the blockchain and will appear in the marketplace shortly.",
+          hash as string,
+          6000
+        )
 
         // Note: Job will be automatically published to Somnia Data Streams
         // via the /api/streams endpoint when it detects the JobPosted event
@@ -260,32 +270,43 @@ export default function PostJob() {
         // Redirect to dashboard after successful post
         setTimeout(() => {
           window.location.href = '/gigstream'
-        }, 2000)
+        }, 3000)
       } catch (error: any) {
         console.error('Error posting job:', error)
         
+        // Extract transaction hash if available
+        const txHash = error?.transactionHash || error?.hash || error?.data?.hash
+        
         // Provide user-friendly error messages
+        let errorTitle = "Transaction Failed"
         let errorMessage = "Failed to post job"
+        
         if (error?.message?.includes('User rejected')) {
-          errorMessage = "Transaction was cancelled"
+          errorTitle = "Transaction Cancelled"
+          errorMessage = "You cancelled the transaction in your wallet"
         } else if (error?.message?.includes('insufficient funds') || error?.message?.includes('balance')) {
-          errorMessage = "Insufficient balance. Please check your STT balance."
+          errorTitle = "Insufficient Balance"
+          errorMessage = "You don't have enough STT. Please check your balance and try again."
         } else if (error?.message?.includes('Internal JSON-RPC error')) {
-          errorMessage = "Network error. Please check your connection and try again."
+          errorTitle = "Network Error"
+          errorMessage = "Network connection error. Please check your connection and try again."
         } else if (error?.message) {
           errorMessage = error.message
         }
         
-        showToast({ 
-          title: "Error", 
-          description: errorMessage
-        })
+        showError(
+          errorTitle,
+          errorMessage,
+          txHash,
+          10000
+        )
       }
     })
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neural-blue via-somnia-purple/20 to-mx-green/10">
+      {NotificationComponents}
       <Navbar />
       <main className="pt-20 pb-16">
         <motion.div 
@@ -346,7 +367,7 @@ export default function PostJob() {
       </motion.div>
 
       {/* Form */}
-      <motion.form onSubmit={handleSubmit} className="space-y-6">
+      <motion.form onSubmit={handleSubmit} className="space-y-6 relative" style={{ zIndex: 1 }}>
         {/* Title */}
         <div className="backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10">
           <label className="text-white/80 mb-3 font-mono text-sm uppercase tracking-wide flex items-center space-x-2">
@@ -364,16 +385,18 @@ export default function PostJob() {
 
         {/* Location + Map */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10">
+          <div className="backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10 relative" style={{ zIndex: 1 }}>
             <label className="text-white/80 mb-3 font-mono text-sm uppercase tracking-wide flex items-center space-x-2">
               <MapPin className="w-4 h-4" />
               <span>Location</span>
             </label>
-            <LocationSelector
-              value={formData.location}
-              onChange={(location) => setFormData({ ...formData, location })}
-              placeholder="Select country and city"
-            />
+            <div className="relative" style={{ zIndex: 9999 }}>
+              <LocationSelector
+                value={formData.location}
+                onChange={(location) => setFormData({ ...formData, location })}
+                placeholder="Select country and city"
+              />
+            </div>
           </div>
           
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10">
