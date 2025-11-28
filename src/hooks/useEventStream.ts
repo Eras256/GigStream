@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 
 export interface StreamEvent {
   type: string
+  receivedAt?: number
   [key: string]: any
 }
 
