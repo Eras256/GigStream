@@ -40,6 +40,7 @@ export function useEventStream(
     eventSourceRef.current = eventSource
 
     eventSource.onopen = () => {
+      console.log(`[useEventStream] Connected to ${streamType} stream`)
       setIsConnected(true)
       setError(null)
     }
@@ -50,9 +51,12 @@ export function useEventStream(
         
         // Handle connection message
         if (data.type === 'connected') {
+          console.log(`[useEventStream] Received connection confirmation for ${streamType}`)
           setIsConnected(true)
           return
         }
+
+        console.log(`[useEventStream] Received event for ${streamType}:`, data.type)
 
         // Add timestamp if not present
         const eventData: StreamEvent = {
@@ -62,14 +66,18 @@ export function useEventStream(
 
         setEvents((prev) => [eventData, ...prev].slice(0, 100)) // Keep last 100 events
       } catch (err) {
-        console.error('Error parsing SSE event:', err)
+        console.error(`[useEventStream] Error parsing SSE event for ${streamType}:`, err)
       }
     }
 
     eventSource.onerror = (err) => {
-      console.error('EventSource error:', err)
-      setError(new Error('Failed to connect to event stream'))
-      setIsConnected(false)
+      console.error(`EventSource error for ${streamType}:`, err)
+      // Don't set error immediately - EventSource may reconnect automatically
+      // Only set error if connection is closed
+      if (eventSource.readyState === EventSource.CLOSED) {
+        setError(new Error(`Failed to connect to ${streamType} stream`))
+        setIsConnected(false)
+      }
     }
 
     // Cleanup on unmount
