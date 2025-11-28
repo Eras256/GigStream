@@ -2,10 +2,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi'
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useWatchContractEvent } from 'wagmi'
 import { gigEscrowAbi } from '@/lib/viem'
 import { GIGESCROW_ADDRESS } from '@/lib/contracts'
-import { formatEther } from 'viem'
+import { formatEther, parseEther } from 'viem'
 
 export function useGigStream() {
   const { address, isConnected } = useAccount()
@@ -70,6 +70,48 @@ export function useGigStream() {
     },
   })
 
+  // Watch for new jobs
+  useWatchContractEvent({
+    address: GIGESCROW_ADDRESS,
+    abi: gigEscrowAbi,
+    eventName: 'JobPosted',
+    onLogs: () => {
+      refetchUserJobs()
+    },
+  })
+
+  // Watch for bids
+  useWatchContractEvent({
+    address: GIGESCROW_ADDRESS,
+    abi: gigEscrowAbi,
+    eventName: 'BidPlaced',
+    onLogs: () => {
+      // Refetch job data when bids are placed
+    },
+  })
+
+  // Write contract functions
+  const { writeContract: placeBid, data: placeBidHash, isPending: isPlacingBid } = useWriteContract()
+  const { writeContract: acceptBid, data: acceptBidHash, isPending: isAcceptingBid } = useWriteContract()
+  const { writeContract: completeJob, data: completeJobHash, isPending: isCompletingJob } = useWriteContract()
+  const { writeContract: cancelJob, data: cancelJobHash, isPending: isCancellingJob } = useWriteContract()
+
+  // Wait for transactions
+  const { isLoading: isPlaceBidConfirming } = useWaitForTransactionReceipt({ hash: placeBidHash })
+  const { isLoading: isAcceptBidConfirming } = useWaitForTransactionReceipt({ hash: acceptBidHash })
+  const { isLoading: isCompleteJobConfirming } = useWaitForTransactionReceipt({ hash: completeJobHash })
+  const { isLoading: isCancelJobConfirming } = useWaitForTransactionReceipt({ hash: cancelJobHash })
+
+  // Get job counter
+  const { data: jobCounter, refetch: refetchJobCounter } = useReadContract({
+    address: GIGESCROW_ADDRESS,
+    abi: gigEscrowAbi,
+    functionName: 'jobCounter',
+    query: {
+      enabled: !!GIGESCROW_ADDRESS,
+    },
+  })
+
   const [reputation, setReputation] = useState({
     rating: 0,
     jobsCompleted: 0,
@@ -101,14 +143,93 @@ export function useGigStream() {
     }
   }, [address, isConnected, reputationScore, workerJobIds])
 
+
+  // Handler functions
+  const handlePlaceBid = async (jobId: bigint, bidAmount: string = '0') => {
+    if (!address || !isConnected) throw new Error('Wallet not connected')
+    
+    try {
+      await placeBid({
+        address: GIGESCROW_ADDRESS,
+        abi: gigEscrowAbi,
+        functionName: 'placeBid',
+        args: [jobId, parseEther(bidAmount)],
+      })
+    } catch (error) {
+      console.error('Error placing bid:', error)
+      throw error
+    }
+  }
+
+  const handleAcceptBid = async (jobId: bigint, workerAddress: `0x${string}`) => {
+    if (!address || !isConnected) throw new Error('Wallet not connected')
+    
+    try {
+      await acceptBid({
+        address: GIGESCROW_ADDRESS,
+        abi: gigEscrowAbi,
+        functionName: 'acceptBid',
+        args: [jobId, workerAddress],
+      })
+    } catch (error) {
+      console.error('Error accepting bid:', error)
+      throw error
+    }
+  }
+
+  const handleCompleteJob = async (jobId: bigint) => {
+    if (!address || !isConnected) throw new Error('Wallet not connected')
+    
+    try {
+      await completeJob({
+        address: GIGESCROW_ADDRESS,
+        abi: gigEscrowAbi,
+        functionName: 'completeJob',
+        args: [jobId],
+      })
+    } catch (error) {
+      console.error('Error completing job:', error)
+      throw error
+    }
+  }
+
+  const handleCancelJob = async (jobId: bigint) => {
+    if (!address || !isConnected) throw new Error('Wallet not connected')
+    
+    try {
+      await cancelJob({
+        address: GIGESCROW_ADDRESS,
+        abi: gigEscrowAbi,
+        functionName: 'cancelJob',
+        args: [jobId],
+      })
+    } catch (error) {
+      console.error('Error cancelling job:', error)
+      throw error
+    }
+  }
+
   return {
     reputation,
     userJobIds: userJobIds || [],
     workerJobIds: workerJobIds || [],
+    jobCounter: jobCounter || 0n,
+    // Write functions
+    placeBid: handlePlaceBid,
+    acceptBid: handleAcceptBid,
+    completeJob: handleCompleteJob,
+    cancelJob: handleCancelJob,
+    // Loading states
+    isPlacingBid: isPlacingBid || isPlaceBidConfirming,
+    isAcceptingBid: isAcceptingBid || isAcceptBidConfirming,
+    isCompletingJob: isCompletingJob || isCompleteJobConfirming,
+    isCancellingJob: isCancellingJob || isCancelJobConfirming,
+    // Refetch function
     refetch: () => {
       refetchReputation()
       refetchUserJobs()
       refetchWorkerJobs()
+      refetchJobCounter()
     },
   }
 }

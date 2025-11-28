@@ -5,7 +5,7 @@
 # Mainnet: Somnia Mainnet (Chain ID: TBD - check somnia.network/docs)
 NEXT_PUBLIC_SOMNIA_RPC_URL=https://dream-rpc.somnia.network
 NEXT_PUBLIC_SOMNIA_CHAIN_ID=50312
-NEXT_PUBLIC_SOMNIA_EXPLORER=https://somnia-testnet.explorer.somnia.network
+NEXT_PUBLIC_SOMNIA_EXPLORER=https://shannon-explorer.somnia.network
 
 # ============================================
 # Reown AppKit (WalletConnect)
@@ -43,6 +43,6 @@ SOMNIA_RPC_URL=https://dream-rpc.somnia.network
 # Somnia Explorer API (for contract verification)
 # ============================================
 # API key for Somnia Explorer contract verification
-# Get from: https://somnia-testnet.explorer.somnia.network
+# Get from: https://shannon-explorer.somnia.network
 SOMNIA_EXPLORER_API_KEY=your_explorer_api_key_here
 

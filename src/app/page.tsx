@@ -10,8 +10,6 @@ import WhatWeDoSection from '@/components/gigstream/WhatWeDoSection'
 // Somnia Network Sections - Integrated
 import TechnologySection from '@/components/somnia/TechnologySection'
 import MultiStreamSection from '@/components/somnia/MultiStreamSection'
-import IceDBSection from '@/components/somnia/IceDBSection'
-import EVMSection from '@/components/somnia/EVMSection'
 import CTASection from '@/components/gigstream/CTASection'
 import GeminiBot from '@/components/chatbot/GeminiBot'
 

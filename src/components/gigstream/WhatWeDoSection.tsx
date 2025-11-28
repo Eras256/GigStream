@@ -56,7 +56,7 @@ export default function WhatWeDoSection() {
             </span>
           </h2>
           <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed">
-            Transforming Mexico's informal economy through 
+            Transforming Mexico&apos;s informal economy through 
             <span className="text-somnia-cyan font-semibold"> blockchain technology</span> and real-time job matching.
           </p>
         </motion.div>
@@ -109,7 +109,7 @@ export default function WhatWeDoSection() {
             >
               <div className="text-6xl font-black neural-text mb-2">56M+</div>
               <div className="text-white/80 text-lg uppercase tracking-wide font-bold mb-1">Informal Workers</div>
-              <div className="text-white/60 text-sm">Mexico's informal economy</div>
+              <div className="text-white/60 text-sm">Mexico&apos;s informal economy</div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}

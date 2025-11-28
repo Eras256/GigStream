@@ -4,8 +4,8 @@
 import { useState, useTransition } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, DollarSign, Clock, Send, Bot, Zap } from 'lucide-react'
-import { useAccount, useSendTransaction } from 'wagmi'
-import { parseEther } from 'viem'
+import { useAccount, useSendTransaction, useBalance } from 'wagmi'
+import { parseEther, formatEther } from 'viem'
 import { useGemini } from '@/providers/GeminiProvider'
 import { useToast } from '@/components/ui/use-toast'
 import Navbar from '@/components/somnia/Navbar'
@@ -13,10 +13,18 @@ import Footer from '@/components/somnia/Footer'
 
 export default function PostJob() {
   const [isPending, startTransition] = useTransition()
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const { sendTransactionAsync } = useSendTransaction()
   const { generateText } = useGemini()
   const { showToast } = useToast()
+  
+  // Check user balance
+  const { data: balance, isLoading: balanceLoading } = useBalance({
+    address: address,
+    query: {
+      enabled: isConnected && !!address,
+    },
+  })
 
   const [formData, setFormData] = useState({
     title: '',
@@ -130,17 +138,80 @@ export default function PostJob() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate wallet connection
+    if (!isConnected || !address) {
+      showToast({ 
+        title: "Wallet not connected", 
+        description: "Please connect your wallet to post a job" 
+      })
+      return
+    }
+
+    // Validate form data
+    if (!formData.title || !formData.location || !formData.reward || !formData.deadline) {
+      showToast({ 
+        title: "Missing information", 
+        description: "Please fill in all required fields" 
+      })
+      return
+    }
+
+    // Validate deadline
+    const deadlineDate = new Date(formData.deadline)
+    const now = new Date()
+    if (deadlineDate <= now) {
+      showToast({ 
+        title: "Invalid deadline", 
+        description: "Deadline must be in the future" 
+      })
+      return
+    }
+
+    // Validate reward amount
+    const rewardAmount = parseEther(formData.reward)
+    if (rewardAmount <= 0n) {
+      showToast({ 
+        title: "Invalid reward", 
+        description: "Reward must be greater than 0" 
+      })
+      return
+    }
+
+    // Check balance
+    if (balance && balance.value < rewardAmount) {
+      const balanceFormatted = formatEther(balance.value)
+      showToast({ 
+        title: "Insufficient balance", 
+        description: `You need ${formData.reward} STT but only have ${balanceFormatted} STT` 
+      })
+      return
+    }
+
     startTransition(async () => {
       try {
         const { GIGESCROW_ADDRESS } = await import('@/lib/contracts')
         const contractAddress = GIGESCROW_ADDRESS
         if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-          showToast({ title: "Error", description: "Contract not deployed. Configure NEXT_PUBLIC_GIGESCROW_ADDRESS" })
+          showToast({ 
+            title: "Error", 
+            description: "Contract not deployed. Configure NEXT_PUBLIC_GIGESCROW_ADDRESS" 
+          })
           return
         }
 
         // Convert deadline to timestamp
         const deadlineTimestamp = Math.floor(new Date(formData.deadline).getTime() / 1000)
+        
+        // Validate deadline is at least 1 day in the future (contract requirement)
+        const minDeadline = Math.floor(Date.now() / 1000) + 86400 // 1 day
+        if (deadlineTimestamp < minDeadline) {
+          showToast({ 
+            title: "Invalid deadline", 
+            description: "Deadline must be at least 1 day from now" 
+          })
+          return
+        }
         
         // Encode function call using viem
         const { encodeFunctionData } = await import('viem')
@@ -152,20 +223,20 @@ export default function PostJob() {
           args: [
             formData.title,
             formData.location,
-            parseEther(formData.reward),
+            rewardAmount,
             BigInt(deadlineTimestamp)
           ]
         })
 
         const hash = await sendTransactionAsync({
           to: contractAddress,
-          value: parseEther(formData.reward),
+          value: rewardAmount,
           data: data as `0x${string}`,
         })
 
         showToast({
           title: "Job posted!",
-          description: `Tx: ${hash.slice(0, 10)}... Live SDS stream activated`,
+          description: `Transaction submitted: ${hash.slice(0, 10)}...`,
           duration: 5000
         })
 
@@ -175,9 +246,22 @@ export default function PostJob() {
         }, 2000)
       } catch (error: any) {
         console.error('Error posting job:', error)
+        
+        // Provide user-friendly error messages
+        let errorMessage = "Failed to post job"
+        if (error?.message?.includes('User rejected')) {
+          errorMessage = "Transaction was cancelled"
+        } else if (error?.message?.includes('insufficient funds') || error?.message?.includes('balance')) {
+          errorMessage = "Insufficient balance. Please check your STT balance."
+        } else if (error?.message?.includes('Internal JSON-RPC error')) {
+          errorMessage = "Network error. Please check your connection and try again."
+        } else if (error?.message) {
+          errorMessage = error.message
+        }
+        
         showToast({ 
           title: "Error", 
-          description: error?.message || "Check STT balance and configuration" 
+          description: errorMessage
         })
       }
     })

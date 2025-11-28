@@ -77,6 +77,6 @@ cd contracts && npx hardhat test --gas-reporter
 ## 🔗 Links de Producción
 
 - Frontend: https://gigstream-mx.vercel.app
-- Explorer: https://somnia-testnet.explorer.somnia.network
+- Explorer: https://shannon-explorer.somnia.network
 - Contracts: [Ver en Explorer después del deploy]
 

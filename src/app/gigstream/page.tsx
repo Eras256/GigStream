@@ -13,25 +13,29 @@ import AIJobMatcher from '@/components/gigstream/AIJobMatcher'
 import AIBidOptimizer from '@/components/gigstream/AIBidOptimizer'
 import GeminiBot from '@/components/chatbot/GeminiBot'
 
+import { useGigStream } from '@/hooks/useGigStream'
+import JobCard from '@/components/gigstream/JobCard'
+
 export default function GigStreamDashboard() {
   const { address, isConnected } = useAccount()
+  const { jobCounter, refetch } = useGigStream()
   const [jobsCount, setJobsCount] = useState(0)
 
+  // Fetch all jobs from contract
   useEffect(() => {
-    // Mock live stream connection
-    const eventSource = new EventSource('/api/streams?type=jobs')
-    
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if (data.type === 'update') {
-        setJobsCount(prev => prev + 1)
-      }
+    if (jobCounter && jobCounter > 0n) {
+      setJobsCount(Number(jobCounter))
     }
+  }, [jobCounter])
 
-    return () => {
-      eventSource.close()
-    }
-  }, [])
+  useEffect(() => {
+    // Refetch jobs periodically
+    const interval = setInterval(() => {
+      refetch()
+    }, 10000) // Every 10 seconds
+
+    return () => clearInterval(interval)
+  }, [refetch])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neural-blue via-somnia-purple/20 to-mx-green/10">
@@ -80,35 +84,28 @@ export default function GigStreamDashboard() {
             </motion.div>
 
             {/* Live Jobs Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((job) => (
-                <motion.div
-                  key={job}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="backdrop-blur-xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-neural-glow hover:shadow-neural-glow-lg transition-all duration-300"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-bold text-white">Plomero CDMX</h3>
-                    <div className="w-3 h-3 bg-mx-green rounded-full animate-pulse" />
-                  </div>
-                  <div className="space-y-2 text-white/70 font-mono text-sm">
-                    <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4" />
-                      <span>Polanco, CDMX</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <DollarSign className="w-4 h-4" />
-                      <span>500 STT</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-4 h-4" />
-                      <span>Deadline: 2 days</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {jobsCount > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: Math.min(Number(jobsCount), 12) }, (_, i) => {
+                  const jobId = BigInt(Number(jobsCount) - i)
+                  return <JobCard key={jobId.toString()} jobId={jobId} />
+                })}
+              </div>
+            ) : (
+              <div className="backdrop-blur-xl bg-white/5 rounded-3xl p-12 border border-white/10 text-center">
+                <p className="text-white/70 text-lg mb-4">No hay trabajos disponibles aún</p>
+                <Link href="/gigstream/post">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-gradient-to-r from-somnia-purple to-mx-green rounded-xl text-white font-bold shadow-neural-glow"
+                  >
+                    <Plus className="w-5 h-5 inline mr-2" />
+                    Publicar Primer Trabajo
+                  </motion.button>
+                </Link>
+              </div>
+            )}
 
             {/* AI Features Section */}
             <div className="space-y-6">

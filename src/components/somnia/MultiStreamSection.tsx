@@ -64,7 +64,7 @@ export default function MultiStreamSection() {
           </h2>
           <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed">
             Revolutionary consensus mechanism enabling parallel block production across independent validator chains.
-            <span className="text-somnia-cyan font-semibold"> The foundation of Somnia's 400k+ TPS performance.</span>
+            <span className="text-somnia-cyan font-semibold"> The foundation of Somnia&apos;s 400k+ TPS performance.</span>
           </p>
         </motion.div>
 

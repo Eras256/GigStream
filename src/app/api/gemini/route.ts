@@ -9,6 +9,18 @@ export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {
+    // Check if API key is configured early to avoid unnecessary processing
+    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Gemini API key not configured. Please set GEMINI_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY environment variable.',
+          timestamp: new Date().toISOString()
+        },
+        { status: 503 } // Service Unavailable - not an error, just not configured
+      )
+    }
+
     const body = await req.json()
     const { prompt, context, expectJSON, options } = body
 

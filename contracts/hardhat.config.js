@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-verify";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

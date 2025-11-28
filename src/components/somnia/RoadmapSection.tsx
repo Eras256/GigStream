@@ -209,7 +209,7 @@ export default function RoadmapSection() {
         >
           <h3 className="text-3xl font-bold text-white mb-4 text-center">Current Focus</h3>
           <p className="text-white/80 text-center max-w-3xl mx-auto">
-            We're currently focused on expanding our validator network, enhancing cross-chain capabilities, 
+            We&apos;re currently focused on expanding our validator network, enhancing cross-chain capabilities, 
             and growing our ecosystem of real-time applications. Join us in building the future of on-chain experiences.
           </p>
         </motion.div>

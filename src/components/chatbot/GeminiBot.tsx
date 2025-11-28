@@ -378,9 +378,9 @@ export default function GeminiBot() {
                   <h3 className="text-xs lg:text-sm font-semibold mb-1 text-white/80">GigStream AI</h3>
                   <p className="text-[10px] lg:text-xs max-w-xs mb-2">Ask about jobs, bids or Somnia SDS</p>
                   <div className="mt-1 text-[9px] lg:text-[10px] font-mono space-y-0.5 text-white/40">
-                    <div>- "Jobs plumber CDMX"</div>
-                    <div>- "Optimize my bid"</div>
-                    <div>- "In-demand skills"</div>
+                    <div>- &quot;Jobs plumber CDMX&quot;</div>
+                    <div>- &quot;Optimize my bid&quot;</div>
+                    <div>- &quot;In-demand skills&quot;</div>
                   </div>
                 </div>
               )}

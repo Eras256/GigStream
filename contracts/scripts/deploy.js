@@ -80,7 +80,7 @@ async function main() {
   console.log("   StakingPool:", stakingAddress);
   console.log("   Red: Somnia Testnet");
   console.log("   Chain ID: 50312");
-  console.log("   Explorer: https://somnia-testnet.explorer.somnia.network");
+  console.log("   Explorer: https://shannon-explorer.somnia.network");
   console.log("✅ ==========================================\n");
 
   // Guardar información del despliegue
@@ -95,9 +95,9 @@ async function main() {
     deployer: deployerAddress,
     timestamp: new Date().toISOString(),
     explorers: {
-      gigEscrow: `https://somnia-testnet.explorer.somnia.network/address/${escrowAddress}`,
-      reputationToken: `https://somnia-testnet.explorer.somnia.network/address/${reputationAddress}`,
-      stakingPool: `https://somnia-testnet.explorer.somnia.network/address/${stakingAddress}`,
+      gigEscrow: `https://shannon-explorer.somnia.network/address/${escrowAddress}`,
+      reputationToken: `https://shannon-explorer.somnia.network/address/${reputationAddress}`,
+      stakingPool: `https://shannon-explorer.somnia.network/address/${stakingAddress}`,
     },
   };
 
