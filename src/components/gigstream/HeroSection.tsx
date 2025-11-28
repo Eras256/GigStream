@@ -149,10 +149,10 @@ export default function HeroSection() {
             className="text-4xl md:text-5xl lg:text-7xl font-black mb-4 leading-tight"
           >
             <span className="neural-text text-neural-glow-lg">
-              GigStream MX
+              GigStream
             </span>
             <br />
-            <span className="text-white">Real-Time Freelance Marketplace</span>
+            <span className="text-white">Global Real-Time Freelance Marketplace</span>
             <br />
             <span className="text-2xl md:text-3xl lg:text-4xl text-white/70 font-bold">
               Built on Somnia Network
@@ -165,7 +165,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl lg:text-2xl text-white/90 mb-3 max-w-3xl mx-auto leading-relaxed font-medium"
           >
-            Connect 56 million informal workers in Mexico with real-time job opportunities
+            Connect freelancers and workers worldwide with real-time job opportunities
           </motion.p>
 
           <motion.p
@@ -227,10 +227,10 @@ export default function HeroSection() {
             className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
           >
             {[
-              { icon: Users, value: '56M+', label: 'Workers', color: 'from-mx-green to-emerald-400', desc: 'Informal Economy' },
+              { icon: Users, value: 'Global', label: 'Workers', color: 'from-mx-green to-emerald-400', desc: 'Worldwide' },
               { icon: Zap, value: '<2s', label: 'Matching', color: 'from-somnia-purple to-purple-400', desc: 'Real-Time' },
               { icon: Network, value: '400k+', label: 'TPS', color: 'from-somnia-cyan to-cyan-400', desc: 'Somnia Network' },
-              { icon: TrendingUp, value: '$10B', label: 'Market', color: 'from-scroll-gold to-yellow-400', desc: 'Opportunity' }
+              { icon: TrendingUp, value: 'Global', label: 'Market', color: 'from-scroll-gold to-yellow-400', desc: 'Opportunity' }
             ].map((stat, idx) => (
               <motion.div
                 key={stat.label}

@@ -93,7 +93,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-black bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] bg-clip-text text-transparent leading-tight">
-                {isGigStreamPage ? 'GigStream' : 'GigStream MX'}
+                GigStream
               </span>
               {!isGigStreamPage && (
                 <span className="text-xs text-white/60 font-medium">Powered by Somnia</span>

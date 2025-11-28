@@ -44,10 +44,10 @@ export async function POST(req: NextRequest) {
 
     // Build structured prompt with context
     const fullPrompt = `
-GigStream MX Assistant - Somnia Data Streams Hackathon
+GigStream Assistant - Global Freelance Marketplace
 
 USER: ${prompt}
-CONTEXT: ${context || 'Mexico freelance marketplace, 56M informal workers. Built on Somnia Network L1 blockchain with real-time Data Streams.'}
+CONTEXT: ${context || 'Global freelance marketplace connecting workers and employers worldwide. Built on Somnia Network L1 blockchain with real-time Data Streams.'}
 
 INSTRUCTIONS:
 - Respond in English

@@ -18,9 +18,9 @@ interface Job {
 
 export default function AIJobMatcher() {
   const [jobs, setJobs] = useState<Job[]>([
-    { id: 1, title: 'Plomero CDMX', location: 'Polanco, CDMX', reward: '500 STT', deadline: '2 días' },
-    { id: 2, title: 'Eléctrico Guadalajara', location: 'Zapopan, GDL', reward: '800 STT', deadline: '3 días' },
-    { id: 3, title: 'DJ Evento Corporativo', location: 'Roma Norte, CDMX', reward: '1200 STT', deadline: '1 semana' }
+    { id: 1, title: 'Plumber', location: 'New York, US', reward: '500 STT', deadline: '2 days' },
+    { id: 2, title: 'Electrician', location: 'London, UK', reward: '800 STT', deadline: '3 days' },
+    { id: 3, title: 'DJ Corporate Event', location: 'Toronto, CA', reward: '1200 STT', deadline: '1 week' }
   ])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [modelUsed, setModelUsed] = useState<string | null>(null)
@@ -38,7 +38,7 @@ export default function AIJobMatcher() {
         Analyze these jobs and calculate match score (0-100) based on:
         - User reputation: ${reputation.reputationScore}
         - User skills: plumber, electrician, events
-        - Preferred location: CDMX
+        - Preferred location: User's location
         
         Jobs:
         ${jobs.map(j => `- ${j.title} in ${j.location}, ${j.reward}`).join('\n')}

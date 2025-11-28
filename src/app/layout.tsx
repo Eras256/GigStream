@@ -8,8 +8,8 @@ import { GeminiProvider } from '@/providers/GeminiProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'GigStream MX - Real-time Freelance on Somnia',
-  description: 'Decentralized marketplace for freelancers in Mexico with Somnia Data Streams',
+  title: 'GigStream - Global Real-time Freelance Marketplace on Somnia',
+  description: 'Global decentralized marketplace for freelancers with Somnia Data Streams',
 }
 
 export default async function RootLayout({

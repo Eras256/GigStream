@@ -24,7 +24,7 @@ export default function AIInsightsPanel() {
     
     try {
       const prompt = `
-        You are an expert in freelance market analysis Mexico. 
+        You are an expert in global freelance market analysis. 
         User: ${address?.slice(0, 6)}...${address?.slice(-4)}
         Reputation: ${reputation?.reputationScore || 0}
         Jobs completed: ${reputation?.jobsCompleted || 0}

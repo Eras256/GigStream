@@ -22,7 +22,7 @@ export default function BenefitsSection() {
       highlight: 'On-chain reputation'
     },
     {
-      text: 'Access to 56M+ job opportunities across Mexico in real-time',
+      text: 'Access to job opportunities worldwide in real-time',
       icon: Globe,
       highlight: '56M+ opportunities'
     },
@@ -75,7 +75,7 @@ export default function BenefitsSection() {
       highlight: 'Transparent reputation'
     },
     {
-      text: 'Access to 56M+ workers across Mexico with local expertise',
+      text: 'Access to workers worldwide with local expertise',
       icon: Globe,
       highlight: '56M+ workers'
     },
