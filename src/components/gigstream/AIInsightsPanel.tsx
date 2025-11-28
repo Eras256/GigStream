@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Brain, TrendingUp, Target, Zap, Sparkles, ChevronDown, ChevronUp } from 'lucide-react'
 import { useGemini } from '@/providers/GeminiProvider'
@@ -17,17 +17,6 @@ export default function AIInsightsPanel() {
   const { reputation, userJobIds, workerJobIds } = useGigStream()
   const { address } = useAccount()
 
-  useEffect(() => {
-    if (address && reputation) {
-      loadInsights()
-    }
-  }, [address, reputation])
-
-  // Don't retry if API key is not configured
-  const shouldRetry = (error: any) => {
-    return !error?.message?.includes('API key') && !error?.message?.includes('not configured')
-  }
-
   const loadInsights = async () => {
     setIsLoading(true)
     setError(null)
@@ -37,10 +26,10 @@ export default function AIInsightsPanel() {
       const prompt = `
         You are an expert in freelance market analysis Mexico. 
         User: ${address?.slice(0, 6)}...${address?.slice(-4)}
-        Reputation: ${reputation.reputationScore}
-        Jobs completed: ${reputation.jobsCompleted}
-        Jobs posted: ${userJobIds.length}
-        Jobs worked: ${workerJobIds.length}
+        Reputation: ${reputation?.reputationScore || 0}
+        Jobs completed: ${reputation?.jobsCompleted || 0}
+        Jobs posted: ${userJobIds?.length || 0}
+        Jobs worked: ${workerJobIds?.length || 0}
         
         Generate valid analysis JSON with:
         {
@@ -117,6 +106,8 @@ export default function AIInsightsPanel() {
     }
   }
 
+  // Removed automatic loading - user must click button to generate insights
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -168,7 +159,34 @@ export default function AIInsightsPanel() {
           exit={{ height: 0, opacity: 0 }}
           className="p-4 md:p-6 space-y-4 md:space-y-6"
         >
-          {isLoading ? (
+          {!insights && !isLoading && !error ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-somnia-cyan to-somnia-purple rounded-2xl flex items-center justify-center">
+                <Brain className="w-10 h-10 text-white" />
+              </div>
+              <div className="text-center space-y-2">
+                <h4 className="text-xl font-bold text-white">Generate AI Insights</h4>
+                <p className="text-white/60 text-sm max-w-md">
+                  Get personalized market analysis, recommendations, and optimization tips powered by Gemini AI
+                </p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={loadInsights}
+                disabled={!address || !reputation}
+                className="px-8 py-4 bg-gradient-to-r from-somnia-cyan to-mx-green rounded-xl text-white font-bold shadow-neural-glow disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-3"
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>Generate Insights</span>
+              </motion.button>
+              {(!address || !reputation) && (
+                <p className="text-xs text-white/40 text-center">
+                  Connect your wallet to generate insights
+                </p>
+              )}
+            </div>
+          ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <div className="flex items-center space-x-3">
                 <motion.div

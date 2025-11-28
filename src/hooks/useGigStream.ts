@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useWatchContractEvent } from 'wagmi'
 import { gigEscrowAbi } from '@/lib/viem'
 import { GIGESCROW_ADDRESS } from '@/lib/contracts'
-import { formatEther, parseEther } from 'viem'
+import { formatEther, parseEther, getAddress } from 'viem'
 
 export function useGigStream() {
   const { address, isConnected } = useAccount()
@@ -131,17 +131,48 @@ export function useGigStream() {
     },
   })
 
+  // Watch for job acceptance (both from acceptBid and assignWorkerDirectly)
+  useWatchContractEvent({
+    address: GIGESCROW_ADDRESS,
+    abi: gigEscrowAbi,
+    eventName: 'JobAccepted',
+    onLogs: (logs) => {
+      // Check if current user was assigned as worker
+      const userAssigned = logs.some((log: any) => 
+        log.args?.worker?.toLowerCase() === address?.toLowerCase()
+      )
+      if (userAssigned) {
+        // Trigger custom event for notifications
+        window.dispatchEvent(new CustomEvent('worker-assigned', {
+          detail: { logs }
+        }))
+        refetchWorkerJobs()
+        refetchReputation()
+      }
+      
+      // Also refetch if current user is the employer who assigned the worker
+      const employerAssigned = logs.some((log: any) => 
+        log.args?.employer?.toLowerCase() === address?.toLowerCase()
+      )
+      if (employerAssigned) {
+        refetchUserJobs()
+      }
+    },
+  })
+
   // Write contract functions
   const { writeContract: writePlaceBid, data: placeBidHash, isPending: isPlacingBid } = useWriteContract()
   const { writeContract: writeAcceptBid, data: acceptBidHash, isPending: isAcceptingBid } = useWriteContract()
   const { writeContract: writeCompleteJob, data: completeJobHash, isPending: isCompletingJob } = useWriteContract()
   const { writeContract: writeCancelJob, data: cancelJobHash, isPending: isCancellingJob } = useWriteContract()
+  const { writeContract: writeAssignWorkerDirectly, data: assignWorkerHash, isPending: isAssigningWorker } = useWriteContract()
 
   // Wait for transactions
   const { isLoading: isPlaceBidConfirming } = useWaitForTransactionReceipt({ hash: placeBidHash })
   const { isLoading: isAcceptBidConfirming } = useWaitForTransactionReceipt({ hash: acceptBidHash })
   const { isLoading: isCompleteJobConfirming } = useWaitForTransactionReceipt({ hash: completeJobHash })
   const { isLoading: isCancelJobConfirming } = useWaitForTransactionReceipt({ hash: cancelJobHash })
+  const { isLoading: isAssigningWorkerConfirming } = useWaitForTransactionReceipt({ hash: assignWorkerHash })
 
   // Get job counter
   const { data: jobCounter, refetch: refetchJobCounter } = useReadContract({
@@ -189,15 +220,61 @@ export function useGigStream() {
   const handlePlaceBid = async (jobId: bigint, bidAmount: string = '0'): Promise<void> => {
     if (!address || !isConnected) throw new Error('Wallet not connected')
     
+    // Log for debugging
+    console.log('Placing bid:', {
+      jobId: jobId.toString(),
+      bidAmount,
+      contractAddress: GIGESCROW_ADDRESS,
+      caller: address
+    })
+    
     try {
-      await writePlaceBid({
+      const result = await writePlaceBid({
         address: GIGESCROW_ADDRESS,
         abi: gigEscrowAbi,
         functionName: 'placeBid',
         args: [jobId, parseEther(bidAmount)],
       })
-    } catch (error) {
-      console.error('Error placing bid:', error)
+      
+      console.log('Bid transaction submitted:', result)
+      return result
+    } catch (error: any) {
+      console.error('Error placing bid:', {
+        error,
+        message: error?.message,
+        shortMessage: error?.shortMessage,
+        data: error?.data,
+        cause: error?.cause,
+        stack: error?.stack
+      })
+      
+      // Parse and improve error messages
+      const errorMessage = error?.message || error?.toString() || error?.shortMessage || 'Unknown error'
+      const errorData = error?.data || error?.cause?.data
+      
+      // Check for common contract errors
+      if (errorMessage.includes('JobNotFound') || errorMessage.includes('not found')) {
+        throw new Error('JobNotFound: The specified job does not exist')
+      } else if (errorMessage.includes('JobAlreadyAssigned') || errorMessage.includes('already assigned')) {
+        throw new Error('JobAlreadyAssigned: This job already has an assigned worker')
+      } else if (errorMessage.includes('JobAlreadyCancelled') || errorMessage.includes('cancelled')) {
+        throw new Error('JobAlreadyCancelled: Cannot place bid on a cancelled job')
+      } else if (errorMessage.includes('User rejected') || errorMessage.includes('user rejected') || errorMessage.includes('rejected the request')) {
+        throw new Error('User rejected: Transaction was cancelled')
+      } else if (errorMessage.includes('execution reverted') || errorMessage.includes('revert')) {
+        // Try to extract revert reason
+        const revertMatch = errorMessage.match(/revert\s+(\w+)/i) || errorMessage.match(/reverted\s+with\s+reason\s+string\s+['"]?(\w+)/i)
+        if (revertMatch && revertMatch[1]) {
+          const revertReason = revertMatch[1]
+          throw new Error(`Contract Error: ${revertReason}`)
+        }
+        throw new Error('Transaction failed: Contract execution reverted. Please check job status.')
+      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('balance')) {
+        throw new Error('Insufficient balance. Please check your STT balance for gas fees.')
+      } else if (errorMessage.includes('Internal JSON-RPC error') || errorMessage.includes('network')) {
+        throw new Error('Network error. Please check your connection and try again.')
+      }
+      
       throw error
     }
   }
@@ -250,6 +327,100 @@ export function useGigStream() {
     }
   }
 
+  const handleAssignWorkerDirectly = async (jobId: bigint, workerAddress: `0x${string}`): Promise<void> => {
+    if (!address || !isConnected) throw new Error('Wallet not connected')
+    
+    // Validate worker address format
+    if (!workerAddress || !workerAddress.startsWith('0x') || workerAddress.length !== 42) {
+      throw new Error('InvalidAddress: Worker address must be a valid Ethereum address (0x...42 characters)')
+    }
+    
+    // Normalize address to checksum format using viem's getAddress
+    let normalizedAddress: `0x${string}`
+    try {
+      normalizedAddress = getAddress(workerAddress)
+    } catch (error) {
+      throw new Error('InvalidAddress: Invalid Ethereum address format')
+    }
+    
+    try {
+      // Log for debugging
+      console.log('Assigning worker directly:', {
+        jobId: jobId.toString(),
+        workerAddress: normalizedAddress,
+        contractAddress: GIGESCROW_ADDRESS,
+        caller: address
+      })
+      
+      const result = await writeAssignWorkerDirectly({
+        address: GIGESCROW_ADDRESS,
+        abi: gigEscrowAbi,
+        functionName: 'assignWorkerDirectly',
+        args: [jobId, normalizedAddress],
+      })
+      
+      console.log('Transaction submitted:', result)
+      
+      // Return the transaction hash
+      return result
+    } catch (error: any) {
+      console.error('Error assigning worker directly:', {
+        error,
+        message: error?.message,
+        shortMessage: error?.shortMessage,
+        data: error?.data,
+        cause: error?.cause,
+        stack: error?.stack
+      })
+      
+      // Parse and improve error messages
+      const errorMessage = error?.message || error?.toString() || error?.shortMessage || 'Unknown error'
+      const errorData = error?.data || error?.cause?.data
+      
+      // Check for common contract errors from revert reasons
+      if (errorData) {
+        // Try to decode error data
+        if (errorData.includes('NotAuthorized') || errorMessage.includes('NotAuthorized')) {
+          throw new Error('NotAuthorized: You are not the employer of this job')
+        } else if (errorData.includes('JobAlreadyAssigned') || errorMessage.includes('JobAlreadyAssigned')) {
+          throw new Error('JobAlreadyAssigned: This job already has an assigned worker')
+        } else if (errorData.includes('JobNotFound') || errorMessage.includes('JobNotFound')) {
+          throw new Error('JobNotFound: The specified job does not exist')
+        } else if (errorData.includes('JobAlreadyCancelled') || errorMessage.includes('JobAlreadyCancelled')) {
+          throw new Error('JobAlreadyCancelled: Cannot assign worker to a cancelled job')
+        } else if (errorData.includes('InvalidAddress') || errorMessage.includes('InvalidAddress')) {
+          throw new Error('InvalidAddress: The worker address is invalid')
+        }
+      }
+      
+      // Check error message patterns
+      if (errorMessage.includes('NotAuthorized') || errorMessage.includes('not authorized') || errorMessage.includes('Unauthorized')) {
+        throw new Error('NotAuthorized: You are not the employer of this job')
+      } else if (errorMessage.includes('JobAlreadyAssigned') || errorMessage.includes('already assigned')) {
+        throw new Error('JobAlreadyAssigned: This job already has an assigned worker')
+      } else if (errorMessage.includes('JobNotFound') || errorMessage.includes('not found')) {
+        throw new Error('JobNotFound: The specified job does not exist')
+      } else if (errorMessage.includes('JobAlreadyCancelled') || errorMessage.includes('cancelled')) {
+        throw new Error('JobAlreadyCancelled: Cannot assign worker to a cancelled job')
+      } else if (errorMessage.includes('InvalidAddress') || errorMessage.includes('invalid address')) {
+        throw new Error('InvalidAddress: The worker address is invalid')
+      } else if (errorMessage.includes('User rejected') || errorMessage.includes('user rejected') || errorMessage.includes('rejected the request')) {
+        throw new Error('User rejected: Transaction was cancelled')
+      } else if (errorMessage.includes('execution reverted') || errorMessage.includes('revert')) {
+        // Try to extract revert reason
+        const revertMatch = errorMessage.match(/revert\s+(\w+)/i)
+        if (revertMatch) {
+          throw new Error(`Contract Error: ${revertMatch[1]}`)
+        }
+        throw new Error('Transaction failed: Contract execution reverted. Please check job status and permissions.')
+      } else if (errorMessage.includes('function') && errorMessage.includes('not found')) {
+        throw new Error('Contract Error: Function not found. The contract may need to be redeployed with the latest version.')
+      }
+      
+      throw error
+    }
+  }
+
   return {
     reputation,
     userJobIds: userJobIds || [],
@@ -260,11 +431,14 @@ export function useGigStream() {
     acceptBid: handleAcceptBid,
     completeJob: handleCompleteJob,
     cancelJob: handleCancelJob,
+    assignWorkerDirectly: handleAssignWorkerDirectly,
     // Loading states
     isPlacingBid: isPlacingBid || isPlaceBidConfirming,
     isAcceptingBid: isAcceptingBid || isAcceptBidConfirming,
     isCompletingJob: isCompletingJob || isCompleteJobConfirming,
     isCancellingJob: isCancellingJob || isCancelJobConfirming,
+    isAssigningWorker: isAssigningWorker || isAssigningWorkerConfirming,
+    assignWorkerHash,
     // Refetch function
     refetch: () => {
       refetchReputation()

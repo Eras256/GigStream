@@ -68,30 +68,43 @@ export default function HeroSection() {
 
       {/* Neural Particles */}
       <div className="neural-particles">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="neural-particle"
-            initial={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, (Math.random() - 0.5) * 150],
-              y: [0, (Math.random() - 0.5) * 150],
-              opacity: [0, 0.6, 0],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-            style={{
-              willChange: 'transform, opacity',
-              transform: 'translateZ(0)',
-            }}
-          />
-        ))}
+        {Array.from({ length: 6 }).map((_, i) => {
+          // Use fixed positions to avoid hydration mismatch
+          const positions = [
+            { left: 10, top: 20 },
+            { left: 30, top: 60 },
+            { left: 70, top: 30 },
+            { left: 50, top: 80 },
+            { left: 85, top: 15 },
+            { left: 15, top: 70 },
+          ]
+          const pos = positions[i] || { left: 50, top: 50 }
+          
+          return (
+            <motion.div
+              key={i}
+              className="neural-particle"
+              initial={{
+                left: `${pos.left}%`,
+                top: `${pos.top}%`,
+              }}
+              animate={{
+                x: [0, (i % 2 === 0 ? 1 : -1) * 100],
+                y: [0, (i % 3 === 0 ? 1 : -1) * 80],
+                opacity: [0, 0.6, 0],
+              }}
+              transition={{
+                duration: 4 + (i * 0.3),
+                repeat: Infinity,
+                delay: i * 0.3,
+              }}
+              style={{
+                willChange: 'transform, opacity',
+                transform: 'translateZ(0)',
+              }}
+            />
+          )
+        })}
       </div>
 
       {/* Mouse Follow Neural Glow */}

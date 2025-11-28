@@ -35,9 +35,15 @@ contract GigEscrow {
     mapping(address => uint256[]) public userJobs;
     mapping(address => uint256[]) public workerJobs;
     uint256 public jobCounter;
+    address public owner;
     
-    uint256 public constant MIN_REPUTATION = 10;
+    // MIN_REPUTATION removed - employers can now accept bids from workers with any reputation level
     uint256 public constant MIN_DEADLINE_OFFSET = 1 days;
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert Unauthorized();
+        _;
+    }
 
     event JobPosted(
         uint256 indexed jobId,
@@ -74,13 +80,22 @@ contract GigEscrow {
 
     error InsufficientPayment();
     error InvalidDeadline();
-    error LowReputation();
+    // LowReputation error removed - reputation requirement for bidding has been removed
     error JobNotFound();
     error JobAlreadyAssigned();
     error JobAlreadyCancelled();
     error JobAlreadyCompleted();
     error NotAuthorized();
     error TransferFailed();
+    error InvalidAddress();
+    error Unauthorized();
+
+    /**
+     * @dev Constructor sets the owner
+     */
+    constructor() {
+        owner = msg.sender;
+    }
 
     /**
      * @dev Post a new job with escrow payment
@@ -129,7 +144,7 @@ contract GigEscrow {
         if (job.id == 0) revert JobNotFound();
         if (job.worker != address(0)) revert JobAlreadyAssigned();
         if (job.cancelled) revert JobAlreadyCancelled();
-        if (reputation[msg.sender] < MIN_REPUTATION) revert LowReputation();
+        // Reputation requirement removed - employers can accept bids from workers with any reputation level
 
         jobBids[_jobId].push(Bid({
             worker: msg.sender,
@@ -164,6 +179,27 @@ contract GigEscrow {
                 break;
             }
         }
+
+        emit JobAccepted(_jobId, _worker, msg.sender);
+    }
+
+    /**
+     * @dev Assign a worker directly to a job (bypasses bidding system)
+     * Allows employers to assign workers without requiring bids
+     * Useful for new workers who don't have enough reputation yet
+     * @param _jobId Job ID
+     * @param _worker Worker address to assign
+     */
+    function assignWorkerDirectly(uint256 _jobId, address _worker) external {
+        Job storage job = jobs[_jobId];
+        if (job.id == 0) revert JobNotFound();
+        if (job.employer != msg.sender) revert NotAuthorized();
+        if (job.worker != address(0)) revert JobAlreadyAssigned();
+        if (job.cancelled) revert JobAlreadyCancelled();
+        if (_worker == address(0)) revert InvalidAddress();
+
+        job.worker = _worker;
+        workerJobs[_worker].push(_jobId);
 
         emit JobAccepted(_jobId, _worker, msg.sender);
     }
@@ -252,6 +288,27 @@ contract GigEscrow {
      */
     function getBalance() external view returns (uint256) {
         return address(this).balance;
+    }
+
+    /**
+     * @dev Grant initial reputation to a new user (only owner)
+     * Allows new users to start bidding on jobs
+     * @param _user User address to grant reputation to
+     * @param _amount Amount of reputation to grant
+     */
+    function grantInitialReputation(address _user, uint256 _amount) external onlyOwner {
+        if (_user == address(0)) revert InvalidAddress();
+        reputation[_user] += _amount;
+        emit ReputationUpdated(_user, reputation[_user]);
+    }
+
+    /**
+     * @dev Transfer ownership of the contract
+     * @param _newOwner New owner address
+     */
+    function transferOwnership(address _newOwner) external onlyOwner {
+        if (_newOwner == address(0)) revert InvalidAddress();
+        owner = _newOwner;
     }
 
     /**

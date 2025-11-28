@@ -78,6 +78,35 @@ export const gigEscrowAbi = [
     outputs: []
   },
   {
+    name: 'assignWorkerDirectly',
+    type: 'function',
+    inputs: [
+      { name: '_jobId', type: 'uint256' },
+      { name: '_worker', type: 'address' }
+    ],
+    stateMutability: 'nonpayable',
+    outputs: []
+  },
+  {
+    name: 'grantInitialReputation',
+    type: 'function',
+    inputs: [
+      { name: '_user', type: 'address' },
+      { name: '_amount', type: 'uint256' }
+    ],
+    stateMutability: 'nonpayable',
+    outputs: []
+  },
+  {
+    name: 'owner',
+    type: 'function',
+    inputs: [],
+    stateMutability: 'view',
+    outputs: [
+      { name: '', type: 'address' }
+    ]
+  },
+  {
     name: 'getJob',
     type: 'function',
     inputs: [
