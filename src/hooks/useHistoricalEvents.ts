@@ -46,9 +46,15 @@ export function useHistoricalEvents(): UseHistoricalEventsResult {
         setIsLoading(true)
         setError(null)
 
+        console.log('[useHistoricalEvents] Starting to fetch historical events...')
+
         // Get current block number
         const currentBlock = await publicClient.getBlockNumber()
-        const fromBlock = currentBlock - 1000n // Last ~1000 blocks
+        console.log('[useHistoricalEvents] Current block:', currentBlock.toString())
+        
+        // Try to get events from a wider range - last 10000 blocks (approximately last few hours)
+        const fromBlock = currentBlock > 10000n ? currentBlock - 10000n : 0n
+        console.log('[useHistoricalEvents] Fetching events from block', fromBlock.toString(), 'to', currentBlock.toString())
 
         // Fetch all event types
         const [jobPostedLogs, bidPlacedLogs, jobCompletedLogs, jobCancelledLogs, reputationLogs] = await Promise.all([
@@ -164,6 +170,15 @@ export function useHistoricalEvents(): UseHistoricalEventsResult {
 
         // Sort by receivedAt (most recent first)
         allEvents.sort((a, b) => (b.receivedAt || 0) - (a.receivedAt || 0))
+
+        console.log('[useHistoricalEvents] Found', allEvents.length, 'historical events')
+        console.log('[useHistoricalEvents] Event breakdown:', {
+          jobs: jobPostedLogs.length,
+          bids: bidPlacedLogs.length,
+          completions: jobCompletedLogs.length,
+          cancellations: jobCancelledLogs.length,
+          reputation: reputationLogs.length,
+        })
 
         setEvents(allEvents)
       } catch (err) {
