@@ -145,6 +145,40 @@ export default function LiveEventsPanel({
         ))}
       </div>
 
+      {/* Connection Status Debug - Always visible for transparency */}
+      <div className="mb-4 p-2 bg-white/5 rounded-lg text-xs text-white/50 font-mono space-y-1">
+        <div className="flex items-center justify-between">
+          <span>Jobs Stream:</span>
+          <span className={jobsStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
+            {jobsStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({jobsStream.events.length} events)
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Bids Stream:</span>
+          <span className={bidsStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
+            {bidsStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({bidsStream.events.length} events)
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Completions Stream:</span>
+          <span className={completionsStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
+            {completionsStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({completionsStream.events.length} events)
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Cancellations Stream:</span>
+          <span className={cancellationsStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
+            {cancellationsStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({cancellationsStream.events.length} events)
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Reputation Stream:</span>
+          <span className={reputationStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
+            {reputationStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({reputationStream.events.length} events)
+          </span>
+        </div>
+      </div>
+
       {/* Events List */}
       <div className="space-y-2 max-h-96 overflow-y-auto">
         <AnimatePresence mode="popLayout">
@@ -193,9 +227,18 @@ export default function LiveEventsPanel({
             ))
           ) : (
             <div className="text-center py-8">
-              <p className="text-white/50 text-sm">
-                {isConnected ? 'No events yet' : 'Connecting to streams...'}
-              </p>
+              <div className="space-y-2">
+                <p className="text-white/50 text-sm">
+                  {isConnected 
+                    ? 'No events yet - Events will appear here as they happen on-chain' 
+                    : 'Connecting to streams...'}
+                </p>
+                {isConnected && (
+                  <p className="text-white/30 text-xs">
+                    Try posting a job or placing a bid to see live events!
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </AnimatePresence>
