@@ -191,11 +191,21 @@ export default function PostJob() {
     startTransition(async () => {
       try {
         const { GIGESCROW_ADDRESS } = await import('@/lib/contracts')
-        const contractAddress = GIGESCROW_ADDRESS
+        // Ensure address is properly formatted (trim and validate)
+        const contractAddress = GIGESCROW_ADDRESS.trim() as `0x${string}`
         if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
           showToast({ 
             title: "Error", 
             description: "Contract not deployed. Configure NEXT_PUBLIC_GIGESCROW_ADDRESS" 
+          })
+          return
+        }
+        
+        // Validate address format
+        if (!contractAddress.startsWith('0x') || contractAddress.length !== 42) {
+          showToast({ 
+            title: "Error", 
+            description: "Invalid contract address format" 
           })
           return
         }

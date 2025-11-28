@@ -17,7 +17,7 @@ if (!projectId) {
 const metadata = {
   name: 'GigStream MX',
   description: 'Real-time freelance on Somnia Data Streams',
-  url: 'https://gigstream-mx.vercel.app', // origin must match your domain & subdomain
+  url: typeof window !== 'undefined' ? window.location.origin : 'https://gigstream-mx.vercel.app',
   icons: ['/logo.png']
 }
 

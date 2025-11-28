@@ -3,7 +3,8 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { defineChain } from 'viem'
 
 // Get projectId from https://dashboard.reown.com
-export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID || '6fd397eb41ba4744205068f35b888825'
+// Trim to remove any whitespace or newlines from environment variables
+export const projectId = (process.env.NEXT_PUBLIC_PROJECT_ID || '6fd397eb41ba4744205068f35b888825').trim()
 
 if (!projectId) {
   throw new Error('Project ID is not defined')
