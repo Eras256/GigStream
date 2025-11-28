@@ -3,10 +3,12 @@
 import Navbar from '@/components/somnia/Navbar'
 import Footer from '@/components/somnia/Footer'
 import HeroSection from '@/components/gigstream/HeroSection'
+import MarketplaceSearch from '@/components/gigstream/MarketplaceSearch'
 import FeaturesSection from '@/components/gigstream/FeaturesSection'
 import BenefitsSection from '@/components/gigstream/BenefitsSection'
 import HowItWorksSection from '@/components/gigstream/HowItWorksSection'
 import WhatWeDoSection from '@/components/gigstream/WhatWeDoSection'
+import SomniaSDKSection from '@/components/gigstream/SomniaSDKSection'
 // Somnia Network Sections - Integrated
 import TechnologySection from '@/components/somnia/TechnologySection'
 import MultiStreamSection from '@/components/somnia/MultiStreamSection'
@@ -20,10 +22,12 @@ export default function Home() {
       <main>
         {/* GigStream Sections */}
         <HeroSection />
+        <MarketplaceSearch />
         <FeaturesSection />
         <BenefitsSection />
         <HowItWorksSection />
         <WhatWeDoSection />
+        <SomniaSDKSection />
         
         {/* Somnia Network - Consolidated Key Features */}
         <TechnologySection />

@@ -18,7 +18,7 @@ export default function FeaturesSection() {
       icon: Shield,
       title: 'Smart Contract Escrow',
       description: 'Audited Solidity escrow contracts ensure payment security. Funds locked in multi-signature escrow until work completion. Zero disputes, zero fraud, fully on-chain.',
-      technical: 'Foundry-tested • Slither audited • Multi-sig escrow • Auto-release on completion',
+      technical: 'Hardhat-tested • Multi-sig escrow • Auto-release on completion • Solidity 0.8.29',
       color: 'from-mx-green to-emerald-400',
       glow: 'shadow-[0_0_30px_hsl(var(--mx-green)/0.5)]'
     },
@@ -48,9 +48,9 @@ export default function FeaturesSection() {
     },
     {
       icon: Users,
-      title: 'ZK Reputation System',
-      description: 'Privacy-preserving reputation system using zero-knowledge proofs. Build trust without exposing personal data. Verified skills, verified work history.',
-      technical: 'ZK proofs • On-chain reputation • Privacy-preserving verification',
+      title: 'On-Chain Reputation System',
+      description: 'Transparent reputation system built on-chain. Build verifiable trust with portable reputation tokens (ERC-20). Reputation increases with each completed job, creating a transparent work history.',
+      technical: 'ERC-20 reputation tokens • On-chain reputation • Portable reputation • Verifiable work history',
       color: 'from-indigo-400 to-purple-400',
       glow: 'shadow-[0_0_30px_hsl(var(--somnia-purple)/0.5)]'
     },
@@ -215,8 +215,8 @@ export default function FeaturesSection() {
             </div>
             <div>
               <Lock className="w-12 h-12 text-scroll-gold mx-auto mb-3" />
-              <div className="text-2xl font-black text-white mb-2">Foundry</div>
-              <div className="text-white/60 text-sm">Audited • Tested</div>
+              <div className="text-2xl font-black text-white mb-2">Hardhat</div>
+              <div className="text-white/60 text-sm">Solidity 0.8.29 • Tested</div>
             </div>
           </div>
         </motion.div>

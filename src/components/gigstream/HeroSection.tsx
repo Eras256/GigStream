@@ -252,7 +252,7 @@ export default function HeroSection() {
             {[
               'Zero Platform Fees',
               'Smart Contract Escrow',
-              'ZK Reputation System',
+              'On-Chain Reputation',
               'Gemini AI',
               'AI-Powered Matching',
               'Instant Payments',

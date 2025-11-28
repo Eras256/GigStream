@@ -27,7 +27,7 @@ export default function HowItWorksSection() {
       icon: Handshake,
       title: 'Match & Accept',
       description: 'Workers place bids instantly. Employers review on-chain reputation scores and accept the best match. Smart contract escrow automatically locks payment.',
-      technical: 'On-chain reputation • Smart escrow • Instant matching • ZK verification',
+      technical: 'On-chain reputation • Smart escrow • Instant matching • Reputation scoring',
       color: 'from-scroll-gold to-yellow-400'
     },
     {

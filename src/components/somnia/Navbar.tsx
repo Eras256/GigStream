@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useAccount, useDisconnect } from 'wagmi'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Download, Zap, Briefcase, User, Plus, Home, Network, Code, Users, Map } from 'lucide-react'
+import { Menu, X, Download, Zap, Briefcase, User, Plus, Home, Network, Code, Users, Map, Store } from 'lucide-react'
 import { formatEther } from 'viem'
 
 export default function Navbar() {
@@ -49,6 +49,7 @@ export default function Navbar() {
         // GigStream Dashboard Menu
         { name: 'Home', href: '/', icon: Home },
         { name: 'Dashboard', href: '/gigstream', icon: Briefcase },
+        { name: 'Marketplace', href: '/gigstream/marketplace', icon: Store },
         { name: 'My Jobs', href: '/gigstream/my-jobs', icon: Briefcase },
         { name: 'Post Job', href: '/gigstream/post', icon: Plus },
         { name: 'Profile', href: '/gigstream/profile', icon: User }
@@ -62,6 +63,7 @@ export default function Navbar() {
           icon: Briefcase,
           submenu: [
             { name: 'Dashboard', href: '/gigstream', icon: Briefcase },
+            { name: 'Marketplace', href: '/gigstream/marketplace', icon: Store },
             { name: 'My Jobs', href: '/gigstream/my-jobs', icon: Briefcase },
             { name: 'Post Job', href: '/gigstream/post', icon: Plus },
             { name: 'Profile', href: '/gigstream/profile', icon: User }
