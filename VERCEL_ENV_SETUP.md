@@ -20,12 +20,22 @@ NEXT_PUBLIC_PROJECT_ID=tu_project_id_aqui
   - `*.vercel.app` (para preview deployments)
   - Tu dominio personalizado si lo tienes
 
-### 2. Gemini AI
+### 2. Gemini AI (CRÍTICO PARA IA)
+
+**IMPORTANTE:** La IA requiere estas variables para funcionar. Sin ellas, las funciones de IA mostrarán mensajes de error.
 
 ```
 GEMINI_API_KEY=tu_api_key_aqui
 GOOGLE_GENERATIVE_AI_API_KEY=tu_api_key_aqui
 ```
+
+**Nota:** El sistema acepta cualquiera de las dos variables. Se recomienda configurar ambas para compatibilidad.
+
+**Cómo obtener tu API key:**
+1. Ve a https://aistudio.google.com/app/apikey
+2. Crea una nueva API key o usa una existente
+3. Copia y pega en Vercel (sin espacios ni saltos de línea)
+4. **IMPORTANTE:** NUNCA subas tu API key a Git. Solo configúrala en Vercel como variable de entorno.
 
 ### 3. Smart Contracts
 
@@ -68,6 +78,7 @@ Después de configurar las variables:
 1. Ve a "Deployments"
 2. Haz un nuevo deployment o redeploy el último
 3. Verifica que no haya errores 403 en la consola del navegador
+4. **Prueba la IA:** Visita `/api/test-gemini` para verificar que Gemini esté funcionando
 
 ## Problemas Comunes
 
@@ -82,4 +93,21 @@ Después de configurar las variables:
 ### Error "Project ID not found"
 - **Causa:** Saltos de línea en NEXT_PUBLIC_PROJECT_ID
 - **Solución:** Copia y pega el Project ID sin espacios ni saltos de línea
+
+### Error "Gemini AI no está configurado"
+- **Causa:** Las variables `GEMINI_API_KEY` o `GOOGLE_GENERATIVE_AI_API_KEY` no están configuradas en Vercel
+- **Solución:** 
+  1. Ve a Vercel Dashboard → Tu Proyecto → Settings → Environment Variables
+  2. Agrega `GEMINI_API_KEY` con tu API key de Google AI Studio
+  3. Opcionalmente agrega `GOOGLE_GENERATIVE_AI_API_KEY` con el mismo valor
+  4. Haz un nuevo deployment
+  5. Verifica en `/api/test-gemini` que funcione
+
+### Error "Request timeout" o "Tiempo de espera agotado"
+- **Causa:** La solicitud a Gemini tardó más de 55 segundos
+- **Solución:** Esto es normal en ocasiones. El sistema tiene un timeout de 55 segundos para evitar exceder el límite de Vercel (60s). Intenta de nuevo.
+
+### Error "API rate limit exceeded"
+- **Causa:** Has excedido el límite de solicitudes de la API de Gemini
+- **Solución:** Espera unos minutos antes de intentar de nuevo. Considera actualizar tu plan de Google AI Studio si necesitas más cuota.
 
