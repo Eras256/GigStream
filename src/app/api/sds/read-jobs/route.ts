@@ -36,39 +36,58 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Get schema ID
-    const schemaId = await getJobSchemaId()
+    try {
+      // Get schema ID
+      const schemaId = await getJobSchemaId()
 
-    // Read jobs from Data Streams
-    const jobs = await readJobFromDataStream(schemaId, publisher)
+      // Read jobs from Data Streams
+      const jobs = await readJobFromDataStream(schemaId, publisher)
 
-    // Limit results
-    const limitedJobs = jobs.slice(0, limit)
+      // Limit results
+      const limitedJobs = jobs.slice(0, limit)
 
-    return NextResponse.json({
-      success: true,
-      jobs: limitedJobs,
-      total: jobs.length,
-      schemaId,
-      publisher,
-    })
-  } catch (error: any) {
-    console.error('Error reading jobs from Data Streams:', error)
-    
-    // Handle NoData error gracefully
-    if (error?.message?.includes('NoData') || error?.shortMessage?.includes('NoData')) {
+      return NextResponse.json({
+        success: true,
+        jobs: limitedJobs,
+        total: jobs.length,
+        schemaId,
+        publisher,
+      })
+    } catch (sdsError: any) {
+      console.error('Error reading jobs from Data Streams:', sdsError)
+      
+      // Handle NoData error gracefully
+      if (sdsError?.message?.includes('NoData') || 
+          sdsError?.shortMessage?.includes('NoData') ||
+          sdsError?.message?.includes('not found') ||
+          sdsError?.message?.includes('No data')) {
+        return NextResponse.json({
+          success: true,
+          jobs: [],
+          total: 0,
+          message: 'No jobs found in Data Streams for this publisher',
+        })
+      }
+
+      // Return empty array instead of error for better UX
+      // SDS is optional enhancement, so we don't want to break the UI
       return NextResponse.json({
         success: true,
         jobs: [],
         total: 0,
-        message: 'No jobs found in Data Streams for this publisher',
+        message: 'Data Streams temporarily unavailable',
       })
     }
-
-    return NextResponse.json(
-      { error: error.message || 'Failed to read jobs from Data Streams' },
-      { status: 500 }
-    )
+  } catch (error: any) {
+    console.error('Error in read-jobs API:', error)
+    
+    // Always return success with empty array to avoid breaking UI
+    return NextResponse.json({
+      success: true,
+      jobs: [],
+      total: 0,
+      message: 'Unable to fetch jobs from Data Streams',
+    })
   }
 }
 

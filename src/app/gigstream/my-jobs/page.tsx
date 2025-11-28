@@ -34,6 +34,8 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 
+type ProfileType = 'worker' | 'employer'
+
 export default function MyJobsPage() {
   const { address, isConnected } = useAccount()
   const { 
@@ -52,6 +54,16 @@ export default function MyJobsPage() {
   } = useGigStream()
   const { showToast } = useToast()
   
+  // Get profile from localStorage
+  const [profile, setProfile] = useState<ProfileType>('worker')
+  
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('gigstream-profile') as ProfileType
+    if (savedProfile && (savedProfile === 'worker' || savedProfile === 'employer')) {
+      setProfile(savedProfile)
+    }
+  }, [])
+  
   // Track loading state
   const [isRefreshing, setIsRefreshing] = useState(false)
   
@@ -60,28 +72,26 @@ export default function MyJobsPage() {
   const [showBidForm, setShowBidForm] = useState<bigint | null>(null)
   const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set())
 
-  // Fetch all jobs - combine user jobs and worker jobs, removing duplicates
+  // Filter jobs based on profile
   const allJobIds = React.useMemo(() => {
-    const userJobs = userJobIds || []
+    if (profile === 'worker') {
+      // Workers see only their assigned jobs
     const workerJobs = workerJobIds || []
-    const combined = [...userJobs]
-    
-    // Add worker jobs that are not already in user jobs
-    workerJobs.forEach(id => {
-      if (!combined.some(jobId => jobId.toString() === id.toString())) {
-        combined.push(id)
-      }
-    })
-    
-    // Sort by job ID (newest first)
-    combined.sort((a, b) => {
+      return [...workerJobs].sort((a, b) => {
+        const aNum = Number(a)
+        const bNum = Number(b)
+        return bNum - aNum
+      })
+    } else {
+      // Employers see only their posted jobs
+      const userJobs = userJobIds || []
+      return [...userJobs].sort((a, b) => {
       const aNum = Number(a)
       const bNum = Number(b)
       return bNum - aNum
     })
-    
-    return combined
-  }, [userJobIds, workerJobIds])
+    }
+  }, [userJobIds, workerJobIds, profile])
 
   // Debug: Log job counts when they change
   useEffect(() => {
@@ -130,11 +140,7 @@ export default function MyJobsPage() {
 
   const handlePlaceBid = async (jobId: bigint) => {
     if (reputation.reputationScore < 10) {
-      showToast({
-        title: "Insufficient Reputation",
-        description: "You need at least 10 reputation points to place bids",
-      })
-      return
+      // Reputation requirement removed
     }
 
     try {
@@ -268,6 +274,7 @@ export default function MyJobsPage() {
                 )}
               </div>
             </div>
+            {profile === 'employer' && (
             <Link href="/gigstream/post">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -278,23 +285,13 @@ export default function MyJobsPage() {
                 <span>Post Job</span>
               </motion.button>
             </Link>
+            )}
           </motion.div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="backdrop-blur-xl bg-gradient-to-r from-somnia-purple/20 to-mx-green/20 rounded-2xl p-6 border border-somnia-purple/30"
-            >
-              <div className="flex items-center space-x-3">
-                <Briefcase className="w-8 h-8 text-somnia-purple" />
-                <div>
-                  <p className="text-white/70 text-sm">Posted Jobs</p>
-                  <p className="text-2xl font-bold text-white">{userJobIds?.length || 0}</p>
-                </div>
-              </div>
-            </motion.div>
+          {/* Stats - Profile specific */}
+          <div className={`grid grid-cols-1 ${profile === 'worker' ? 'md:grid-cols-2' : 'md:grid-cols-2'} gap-4`}>
+            {profile === 'worker' ? (
+              <>
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -321,6 +318,37 @@ export default function MyJobsPage() {
                 </div>
               </div>
             </motion.div>
+              </>
+            ) : (
+              <>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="backdrop-blur-xl bg-gradient-to-r from-somnia-purple/20 to-mx-green/20 rounded-2xl p-6 border border-somnia-purple/30"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Briefcase className="w-8 h-8 text-somnia-purple" />
+                    <div>
+                      <p className="text-white/70 text-sm">Posted Jobs</p>
+                      <p className="text-2xl font-bold text-white">{userJobIds?.length || 0}</p>
+                    </div>
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="backdrop-blur-xl bg-gradient-to-r from-neural-blue/20 to-somnia-purple/20 rounded-2xl p-6 border border-neural-blue/30"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Zap className="w-8 h-8 text-neural-blue" />
+                    <div>
+                      <p className="text-white/70 text-sm">Active Listings</p>
+                      <p className="text-2xl font-bold text-white">{userJobIds?.length || 0}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
           </div>
 
           {/* Jobs List */}
@@ -331,7 +359,12 @@ export default function MyJobsPage() {
               className="backdrop-blur-xl bg-white/5 rounded-3xl p-12 border border-white/10 text-center"
             >
               <Briefcase className="w-16 h-16 text-white/30 mx-auto mb-4" />
-              <p className="text-white/70 text-lg mb-4">You don&apos;t have any jobs yet</p>
+              <p className="text-white/70 text-lg mb-4">
+                {profile === 'worker' 
+                  ? "You don't have any assigned jobs yet" 
+                  : "You haven't posted any jobs yet"}
+              </p>
+              {profile === 'employer' && (
               <Link href="/gigstream/post">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -342,6 +375,18 @@ export default function MyJobsPage() {
                   Post First Job
                 </motion.button>
               </Link>
+              )}
+              {profile === 'worker' && (
+                <Link href="/gigstream">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-gradient-to-r from-somnia-cyan to-mx-green rounded-xl text-white font-bold shadow-neural-glow"
+                  >
+                    Browse Available Jobs
+                  </motion.button>
+                </Link>
+              )}
             </motion.div>
           ) : (
             <div className="space-y-4">
@@ -442,7 +487,7 @@ function JobCardWithActions({
   const isWorker = address.toLowerCase() === job.worker.toLowerCase()
   const isAssigned = job.worker !== '0x0000000000000000000000000000000000000000'
   const canBid = !isEmployer && !isAssigned && !job.completed && !job.cancelled
-  const hasMinReputation = reputation >= 10
+  // Reputation requirement removed - workers can bid with any reputation level
   const isMyJob = userJobIds.includes(jobId)
   const isMyAssignedJob = workerJobIds.includes(jobId)
 
@@ -626,20 +671,12 @@ function JobCardWithActions({
                   <Send className="w-5 h-5" />
                   Place Bid
                 </h4>
-                {!hasMinReputation && (
-                  <div className="p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
-                    <p className="text-yellow-500 text-sm flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" />
-                      You need at least 10 reputation points to place bids
-                    </p>
-                  </div>
-                )}
                 {!showBidForm ? (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowBidForm(true)}
-                    disabled={!hasMinReputation}
+                    disabled={false}
                     className="w-full px-4 py-3 bg-gradient-to-r from-somnia-purple to-mx-green rounded-xl text-white font-bold shadow-neural-glow disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <Send className="w-5 h-5" />

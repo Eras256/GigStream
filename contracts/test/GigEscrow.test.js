@@ -71,7 +71,6 @@ describe("GigEscrow", function () {
   describe("Deployment", function () {
     it("Should deploy with correct initial state", async function () {
       expect(await gigEscrow.jobCounter()).to.equal(0n);
-      expect(await gigEscrow.MIN_REPUTATION()).to.equal(MIN_REPUTATION);
       expect(await gigEscrow.MIN_DEADLINE_OFFSET()).to.equal(MIN_DEADLINE_OFFSET);
     });
   });
@@ -195,10 +194,11 @@ describe("GigEscrow", function () {
       expect(bids[0].accepted).to.be.false;
     });
 
-    it("Should revert with LowReputation when reputation < MIN_REPUTATION", async function () {
+    it("Should allow placing bid with zero reputation", async function () {
+      // Reputation requirement removed - workers can bid with any reputation level
       await expect(
         gigEscrow.connect(worker2).placeBid(jobId, 0n)
-      ).to.be.revertedWithCustomError(gigEscrow, "LowReputation");
+      ).to.emit(gigEscrow, "BidPlaced");
     });
 
     it("Should revert with JobNotFound for invalid job ID", async function () {
@@ -469,6 +469,146 @@ describe("GigEscrow", function () {
       await gigEscrow.connect(worker).completeJob(1n);
       
       expect(await gigEscrow.reputation(worker.address)).to.equal(initialRep + 1n);
+    });
+  });
+
+  describe("assignWorkerDirectly", function () {
+    let jobId;
+    const deadline = BigInt(Math.floor(Date.now() / 1000)) + 7n * 86400n;
+
+    beforeEach(async function () {
+      await gigEscrow.connect(employer).postJob(
+        "Direct Assignment Test",
+        "Test Location",
+        JOB_REWARD,
+        deadline,
+        { value: JOB_REWARD }
+      );
+      jobId = 1n;
+    });
+
+    it("Should assign worker directly by employer", async function () {
+      await expect(
+        gigEscrow.connect(employer).assignWorkerDirectly(jobId, worker.address)
+      ).to.emit(gigEscrow, "JobAccepted")
+        .withArgs(jobId, worker.address, employer.address);
+
+      const job = await gigEscrow.getJob(jobId);
+      expect(job.worker).to.equal(worker.address);
+      expect(job.completed).to.equal(false);
+      expect(job.cancelled).to.equal(false);
+    });
+
+    it("Should add job to worker's job list", async function () {
+      await gigEscrow.connect(employer).assignWorkerDirectly(jobId, worker.address);
+      
+      const workerJobs = await gigEscrow.getWorkerJobs(worker.address);
+      expect(workerJobs.length).to.equal(1);
+      expect(workerJobs[0]).to.equal(jobId);
+    });
+
+    it("Should revert if not called by employer", async function () {
+      await expect(
+        gigEscrow.connect(unauthorized).assignWorkerDirectly(jobId, worker.address)
+      ).to.be.revertedWithCustomError(gigEscrow, "NotAuthorized");
+    });
+
+    it("Should revert if job does not exist", async function () {
+      await expect(
+        gigEscrow.connect(employer).assignWorkerDirectly(999n, worker.address)
+      ).to.be.revertedWithCustomError(gigEscrow, "JobNotFound");
+    });
+
+    it("Should revert if job already has a worker", async function () {
+      await gigEscrow.connect(employer).assignWorkerDirectly(jobId, worker.address);
+      
+      await expect(
+        gigEscrow.connect(employer).assignWorkerDirectly(jobId, worker2.address)
+      ).to.be.revertedWithCustomError(gigEscrow, "JobAlreadyAssigned");
+    });
+
+    it("Should revert if job is cancelled", async function () {
+      await gigEscrow.connect(employer).cancelJob(jobId);
+      
+      await expect(
+        gigEscrow.connect(employer).assignWorkerDirectly(jobId, worker.address)
+      ).to.be.revertedWithCustomError(gigEscrow, "JobAlreadyCancelled");
+    });
+
+    it("Should revert if worker address is zero", async function () {
+      await expect(
+        gigEscrow.connect(employer).assignWorkerDirectly(jobId, hre.ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(gigEscrow, "InvalidAddress");
+    });
+
+    it("Should allow assigning worker without reputation requirement", async function () {
+      // Worker has zero reputation
+      expect(await gigEscrow.reputation(worker.address)).to.equal(0n);
+      
+      // Should still be able to assign directly
+      await expect(
+        gigEscrow.connect(employer).assignWorkerDirectly(jobId, worker.address)
+      ).to.emit(gigEscrow, "JobAccepted");
+
+      const job = await gigEscrow.getJob(jobId);
+      expect(job.worker).to.equal(worker.address);
+    });
+  });
+
+  describe("grantInitialReputation", function () {
+    it("Should grant initial reputation by owner", async function () {
+      const initialAmount = 10n;
+      
+      await expect(
+        gigEscrow.connect(owner).grantInitialReputation(worker.address, initialAmount)
+      ).to.emit(gigEscrow, "ReputationUpdated")
+        .withArgs(worker.address, initialAmount);
+
+      expect(await gigEscrow.reputation(worker.address)).to.equal(initialAmount);
+    });
+
+    it("Should increase reputation if worker already has some", async function () {
+      const firstAmount = 5n;
+      const secondAmount = 10n;
+      
+      await gigEscrow.connect(owner).grantInitialReputation(worker.address, firstAmount);
+      expect(await gigEscrow.reputation(worker.address)).to.equal(firstAmount);
+      
+      await gigEscrow.connect(owner).grantInitialReputation(worker.address, secondAmount);
+      expect(await gigEscrow.reputation(worker.address)).to.equal(firstAmount + secondAmount);
+    });
+
+    it("Should revert if not called by owner", async function () {
+      await expect(
+        gigEscrow.connect(employer).grantInitialReputation(worker.address, 10n)
+      ).to.be.revertedWithCustomError(gigEscrow, "Unauthorized");
+    });
+
+    it("Should revert if user address is zero", async function () {
+      await expect(
+        gigEscrow.connect(owner).grantInitialReputation(hre.ethers.ZeroAddress, 10n)
+      ).to.be.revertedWithCustomError(gigEscrow, "InvalidAddress");
+    });
+
+    it("Should allow worker to bid after receiving initial reputation", async function () {
+      const deadline = BigInt(Math.floor(Date.now() / 1000)) + 7n * 86400n;
+      
+      // Grant initial reputation
+      await gigEscrow.connect(owner).grantInitialReputation(worker.address, MIN_REPUTATION);
+      
+      // Post a job
+      await gigEscrow.connect(employer).postJob(
+        "Test Job",
+        "Test Location",
+        JOB_REWARD,
+        deadline,
+        { value: JOB_REWARD }
+      );
+      
+      // Worker should now be able to place a bid
+      await expect(
+        gigEscrow.connect(worker).placeBid(1n, 0n)
+      ).to.emit(gigEscrow, "BidPlaced");
     });
   });
 });

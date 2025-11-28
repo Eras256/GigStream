@@ -30,7 +30,7 @@ export default function Footer() {
 
   const resourcesLinks = [
     { name: 'Live Demo', href: 'https://gigstream-mx.vercel.app', external: true },
-    { name: 'Smart Contracts', href: 'https://shannon-explorer.somnia.network/address/0x7094f1eb1c49Cf89B793844CecE4baE655f3359b', external: true },
+    { name: 'Smart Contracts', href: 'https://shannon-explorer.somnia.network/address/0x8D742671508E1C5BFF77f3d0AE70218C8Cc57Cef', external: true },
     { name: 'Somnia Docs', href: 'https://docs.somnia.network', external: true },
     { name: 'Somnia Explorer', href: 'https://shannon-explorer.somnia.network', external: true }
   ]
