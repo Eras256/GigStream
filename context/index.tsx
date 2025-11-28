@@ -14,10 +14,18 @@ if (!projectId) {
 }
 
 // Set up metadata
+// Use environment variable for production URL, fallback to dynamic origin
+const getAppUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://gigstream-mx.vercel.app'
+}
+
 const metadata = {
   name: 'GigStream MX',
   description: 'Real-time freelance on Somnia Data Streams',
-  url: typeof window !== 'undefined' ? window.location.origin : 'https://gigstream-mx.vercel.app',
+  url: getAppUrl(),
   icons: ['/logo.png']
 }
 
