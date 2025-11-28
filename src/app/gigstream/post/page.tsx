@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useGigStream } from '@/hooks/useGigStream'
 import Navbar from '@/components/somnia/Navbar'
 import Footer from '@/components/somnia/Footer'
+import LocationSelector from '@/components/gigstream/LocationSelector'
 
 export default function PostJob() {
   const [isPending, startTransition] = useTransition()
@@ -45,11 +46,11 @@ export default function PostJob() {
     setGeminiSuggestions([])
     try {
       const suggestions = await generateText(`
-        You are a freelance expert Mexico. User in: ${formData.location}
-        Skills in demand: plumber, electrician, taquero, DJ events, production crew
+        You are a freelance expert in global freelance markets. User location: ${formData.location}
+        Skills in demand: plumber, electrician, DJ events, production crew, handyman, technician
         
-        Suggest 3 job titles + reward ranges for: "${formData.title || 'service'}"
-        Respond ONLY with a valid JSON array: ["Emergency Plumber CDMX (300-800 STT)", "Electrician Guadalajara (450-1100 STT)", "DJ Corporate Event CDMX (600-1500 STT)"]
+        Suggest 3 job titles + reward ranges for: "${formData.title || 'service'}" in ${formData.location}
+        Respond ONLY with a valid JSON array: ["Emergency Plumber (300-800 STT)", "Electrician (450-1100 STT)", "DJ Corporate Event (600-1500 STT)"]
         No markdown, no explanations, just the JSON array.
       `)
       
@@ -355,7 +356,7 @@ export default function PostJob() {
           <input
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Emergency Plumber CDMX Polanco"
+            placeholder="Emergency Plumber"
             className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 backdrop-blur-xl focus:outline-none focus:border-somnia-purple/50 focus:ring-2 focus:ring-somnia-purple/20 text-lg font-mono transition-all duration-300"
             required
           />
@@ -366,13 +367,12 @@ export default function PostJob() {
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10">
             <label className="text-white/80 mb-3 font-mono text-sm uppercase tracking-wide flex items-center space-x-2">
               <MapPin className="w-4 h-4" />
-              <span>Address</span>
+              <span>Location</span>
             </label>
-            <input
+            <LocationSelector
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="CDMX Polanco, Av. Masaryk 123"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 backdrop-blur-xl focus:ring-somnia-purple/20 transition-all duration-300 font-mono"
+              onChange={(location) => setFormData({ ...formData, location })}
+              placeholder="Select country and city"
             />
           </div>
           

@@ -25,16 +25,16 @@ export default function FeaturesSection() {
     {
       icon: DollarSign,
       title: 'Zero Platform Fees',
-      description: 'No platform fees. Workers keep 100% of earnings. Employers pay only gas fees. Built for the 56M informal economy with cost-effective transactions.',
+      description: 'No platform fees. Workers keep 100% of earnings. Employers pay only gas fees. Built for global workers with cost-effective transactions.',
       technical: 'Zero-fee model • Gas-optimized contracts • STT testnet tokens for testing',
       color: 'from-scroll-gold to-yellow-400',
       glow: 'shadow-[0_0_30px_hsl(var(--scroll-gold)/0.5)]'
     },
     {
       icon: Globe,
-      title: 'Mexico-First Design',
-      description: 'Designed for Mexican freelancers: plumbers, electricians, event crews, DJs. Local payment methods, Spanish-first UX, cultural understanding.',
-      technical: 'Bilingual interface • Local payment integration • Cultural localization',
+      title: 'Global Design',
+      description: 'Designed for freelancers worldwide: plumbers, electricians, event crews, DJs, and more. Multi-language support, local payment methods, cultural understanding.',
+      technical: 'Multi-language interface • Global payment integration • Cultural localization',
       color: 'from-cyan-400 to-blue-400',
       glow: 'shadow-[0_0_30px_hsl(188_100%_50%/0.5)]'
     },

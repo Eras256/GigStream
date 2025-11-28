@@ -66,7 +66,7 @@ export default function DevelopersSection() {
           <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed">
             Built with <span className="text-somnia-cyan font-semibold">Hardhat</span> and <span className="text-somnia-cyan font-semibold">Solidity 0.8.29</span>. 
             EVM Compatible: Use existing tools like Remix, VSCode, Foundry, or Hardhat. 
-            <span className="text-somnia-cyan font-semibold"> Build on GigStream MX with familiar tools.</span>
+            <span className="text-somnia-cyan font-semibold"> Build on GigStream with familiar tools.</span>
           </p>
         </motion.div>
 

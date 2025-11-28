@@ -10,6 +10,7 @@ import { useGemini } from '@/providers/GeminiProvider'
 import { useToast } from '@/components/ui/use-toast'
 import Navbar from '@/components/somnia/Navbar'
 import Footer from '@/components/somnia/Footer'
+import LocationSelector from '@/components/gigstream/LocationSelector'
 
 interface ProfileData {
   displayName: string
@@ -61,7 +62,7 @@ export default function Profile() {
     totalEarnings: '12,450',
     topSkills: profileData.topSkills.length > 0 ? profileData.topSkills : ['Plumber', 'Electrician', 'Events', 'DJ'],
     responseTime: '4.2min',
-    mexicoRanking: '#10',
+    localRanking: '#10',
     globalRanking: '#107'
   }
 
@@ -117,18 +118,19 @@ export default function Profile() {
     setIsLoadingInsights(true)
     try {
       const prompt = `
-        Analyze this freelance profile Mexico:
+        Analyze this freelance profile globally:
         - Rating: ${profileStats.rating}
         - Jobs completed: ${profileStats.jobsCompleted}
         - Earnings: ${profileStats.totalEarnings} STT
         - Skills: ${profileStats.topSkills.join(', ')}
         - Response time: ${profileStats.responseTime}
-        - Mexico Ranking: ${profileStats.mexicoRanking}
+        - Location: ${profileData.location || 'Global'}
+        - Local Ranking: ${profileStats.localRanking}
         - Global Ranking: ${profileStats.globalRanking}
         
         Generate JSON with:
         {
-          "marketTrends": [{"skill": "Plumber CDMX", "trend": "↑ 23%"}, ...],
+          "marketTrends": [{"skill": "Plumber", "trend": "↑ 23%", "location": "${profileData.location || 'Global'}"}, ...],
           "optimizationTips": ["tip 1", "tip 2", "tip 3"],
           "recommendations": ["rec 1", "rec 2", "rec 3"]
         }
@@ -149,16 +151,16 @@ export default function Profile() {
         // Fallback
         setInsights({
           marketTrends: [
-            { skill: 'Plumber CDMX', trend: '↑ 23%' },
-            { skill: 'Events Guadalajara', trend: '↑ 15%' }
+            { skill: 'Plumber', trend: '↑ 23%', location: profileData.location || 'Global' },
+            { skill: 'Events', trend: '↑ 15%', location: profileData.location || 'Global' }
           ],
           optimizationTips: [
             'Lower bids 10% in high competition',
-            'Target jobs Roma Norte',
+            'Target jobs in your area',
             `Average response: ${profileStats.responseTime}`
           ],
           recommendations: [
-            'Focus on plumbing Polanco/Roma',
+            'Focus on your top skills',
             'Improve response time',
             'Expand skill range'
           ]
@@ -257,12 +259,11 @@ export default function Profile() {
                     className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:border-somnia-purple/50 text-sm resize-none"
                   />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input
-                      type="text"
+                    <LocationSelector
                       value={profileData.location}
-                      onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                      placeholder="Location (e.g., CDMX, Mexico)"
-                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:border-somnia-purple/50 text-sm"
+                      onChange={(location) => setProfileData({ ...profileData, location })}
+                      placeholder="Select country and city"
+                      className="w-full"
                     />
                     <input
                       type="text"
@@ -306,8 +307,8 @@ export default function Profile() {
           {!isEditing && (
             <div className="mt-6 lg:mt-0 grid grid-cols-2 gap-3 md:gap-4 w-full lg:w-auto">
               <div className="text-center p-4 bg-white/10 rounded-2xl backdrop-blur-xl border border-white/20">
-                <div className="text-2xl font-black text-mx-green mb-1 font-mono">🇲🇽 #{profileStats.mexicoRanking}</div>
-                <div className="text-xs text-white/60 uppercase font-mono tracking-wider">México</div>
+                <div className="text-2xl font-black text-mx-green mb-1 font-mono">📍 #{profileStats.localRanking}</div>
+                <div className="text-xs text-white/60 uppercase font-mono tracking-wider">Local</div>
               </div>
               <div className="text-center p-4 bg-white/10 rounded-2xl backdrop-blur-xl border border-white/20">
                 <div className="text-2xl font-black text-scroll-gold mb-1 font-mono">🌎 #{profileStats.globalRanking}</div>
@@ -497,7 +498,7 @@ export default function Profile() {
                 </span>
               </h3>
               <div className="flex items-center space-x-2">
-                <p className="text-white/70">AI analysis of your Mexico/Global performance</p>
+                <p className="text-white/70">AI analysis of your local and global performance</p>
                 {modelUsed && (
                   <span className="text-xs text-white/40 font-mono">• {modelUsed}</span>
                 )}

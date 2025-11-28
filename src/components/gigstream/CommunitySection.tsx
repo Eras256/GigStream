@@ -53,13 +53,13 @@ export default function CommunitySection() {
     {
       title: 'Somnia Data Streams Hackathon',
       date: 'Winner 2025',
-      description: 'GigStream MX won first place in the Somnia Data Streams Hackathon',
+      description: 'GigStream won first place in the Somnia Data Streams Hackathon',
       badge: '🏆 Winner'
     },
     {
       title: 'Mexico Web3 Summit',
       date: 'Q2 2025',
-      description: 'Presenting GigStream MX at the largest Web3 event in Mexico',
+      description: 'Presenting GigStream at global Web3 events',
       badge: '📅 Upcoming'
     },
     {

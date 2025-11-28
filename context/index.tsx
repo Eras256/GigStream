@@ -23,8 +23,8 @@ const getAppUrl = () => {
 }
 
 const metadata = {
-  name: 'GigStream MX',
-  description: 'Real-time freelance on Somnia Data Streams',
+  name: 'GigStream',
+  description: 'Global real-time freelance marketplace on Somnia Data Streams',
   url: getAppUrl(),
   icons: ['/logo.png']
 }

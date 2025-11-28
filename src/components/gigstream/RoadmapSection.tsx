@@ -11,7 +11,7 @@ export default function RoadmapSection() {
       phase: 'Q1 2025',
       status: 'completed',
       title: 'Launch & Beta',
-      description: 'GigStream MX beta launch on Somnia testnet. Initial user testing with 1,000 workers.',
+      description: 'GigStream beta launch on Somnia testnet. Initial user testing with 1,000 workers worldwide.',
       milestones: [
         'Smart contract deployment',
         'Gemini AI integration',
@@ -25,8 +25,8 @@ export default function RoadmapSection() {
     {
       phase: 'Q2 2025',
       status: 'in-progress',
-      title: 'Mexico Expansion',
-      description: 'Scale to 10,000+ workers across Mexico. Add Spanish localization and local payment methods.',
+      title: 'Global Expansion',
+      description: 'Scale to 10,000+ workers worldwide. Add multi-language support and local payment methods.',
       milestones: [
         'Spanish UI/UX complete',
         'Local payment integration',

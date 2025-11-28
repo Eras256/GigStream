@@ -21,7 +21,7 @@ export function GeminiProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({
           prompt,
-          context: context || 'Mexico freelance marketplace, 56M informal workers. Built on Somnia Network L1 blockchain with real-time Data Streams.'
+          context: context || 'Global freelance marketplace connecting workers and employers worldwide. Built on Somnia Network L1 blockchain with real-time Data Streams.'
         }),
       })
 

@@ -108,7 +108,7 @@ export default function Footer() {
             <h4 className="text-white font-bold mb-4 uppercase tracking-wide text-sm">About</h4>
             <p className="text-white/60 text-sm mb-4 leading-relaxed">
               Real-time freelance marketplace powered by Somnia Data Streams & Google Gemini AI. 
-              Built for Mexico&apos;s 56 million informal workers.
+              Connecting workers and employers worldwide.
             </p>
             <div className="space-y-2">
               <p className="text-white/60 text-xs">
@@ -125,7 +125,7 @@ export default function Footer() {
         <div className="border-t border-white/10 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="text-white/60 text-sm text-center md:text-left">
-              © 2025 GigStream MX. Built on Somnia Network.
+              © 2025 GigStream. Built on Somnia Network.
             </div>
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
               <span className="text-white/80 text-sm font-semibold">

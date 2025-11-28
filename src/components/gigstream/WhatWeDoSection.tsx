@@ -9,19 +9,19 @@ export default function WhatWeDoSection() {
     {
       icon: Target,
       title: 'Our Mission',
-      description: 'Democratize access to work opportunities for Mexico\'s 56 million informal workers. Bridge the gap between traditional economy and Web3 innovation.',
+      description: 'Democratize access to work opportunities for workers worldwide. Bridge the gap between traditional economy and Web3 innovation.',
       color: 'from-somnia-purple to-purple-400'
     },
     {
       icon: Globe,
       title: 'The Problem',
-      description: '56M workers lack formal job security. Traditional platforms charge 20-30% fees. Payment delays. No reputation portability. Limited to urban areas.',
+      description: 'Workers worldwide lack access to fair job opportunities. Traditional platforms charge 20-30% fees. Payment delays. No reputation portability. Limited geographic reach.',
       color: 'from-red-400 to-orange-400'
     },
     {
       icon: Zap,
       title: 'Our Solution',
-      description: 'Real-time job matching via Somnia Data Streams. Zero fees. Instant payments. Portable reputation. Accessible to all 56M workers across Mexico.',
+      description: 'Real-time job matching via Somnia Data Streams. Zero fees. Instant payments. Portable reputation. Accessible to workers worldwide.',
       color: 'from-mx-green to-emerald-400'
     },
     {
@@ -56,7 +56,7 @@ export default function WhatWeDoSection() {
             </span>
           </h2>
           <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed">
-            Transforming Mexico&apos;s informal economy through 
+            Transforming the global freelance economy through 
             <span className="text-somnia-cyan font-semibold"> blockchain technology</span> and real-time job matching.
           </p>
         </motion.div>
@@ -107,9 +107,9 @@ export default function WhatWeDoSection() {
               whileHover={{ scale: 1.05, y: -5 }}
               className="relative"
             >
-              <div className="text-6xl font-black neural-text mb-2">56M+</div>
-              <div className="text-white/80 text-lg uppercase tracking-wide font-bold mb-1">Informal Workers</div>
-              <div className="text-white/60 text-sm">Mexico&apos;s informal economy</div>
+              <div className="text-6xl font-black neural-text mb-2">Global</div>
+              <div className="text-white/80 text-lg uppercase tracking-wide font-bold mb-1">Workers</div>
+              <div className="text-white/60 text-sm">Worldwide reach</div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
