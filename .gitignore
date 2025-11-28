@@ -47,7 +47,7 @@ contracts/.openzeppelin/
 # Foundry (if used)
 cache/
 out/
-lib/
+/lib/
 
 # IDE
 .vscode/
