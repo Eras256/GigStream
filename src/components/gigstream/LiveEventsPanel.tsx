@@ -193,6 +193,12 @@ export default function LiveEventsPanel({
       {/* Connection Status Debug - Always visible for transparency */}
       <div className="mb-4 p-2 bg-white/5 rounded-lg text-xs text-white/50 font-mono space-y-1">
         <div className="flex items-center justify-between">
+          <span>Historical Events:</span>
+          <span className={isLoadingHistorical ? 'text-yellow-400' : historicalEvents.length > 0 ? 'text-mx-green' : 'text-red-400'}>
+            {isLoadingHistorical ? '⏳ Loading...' : historicalEvents.length > 0 ? `✅ ${historicalEvents.length} events` : '❌ No events found'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
           <span>Jobs Stream:</span>
           <span className={jobsStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
             {jobsStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({jobsStream.events.length} events)
@@ -220,6 +226,12 @@ export default function LiveEventsPanel({
           <span>Reputation Stream:</span>
           <span className={reputationStream.isConnected ? 'text-mx-green' : 'text-red-400'}>
             {reputationStream.isConnected ? '✅ Connected' : '❌ Disconnected'} ({reputationStream.events.length} events)
+          </span>
+        </div>
+        <div className="flex items-center justify-between pt-2 border-t border-white/10">
+          <span>Total Combined:</span>
+          <span className="text-somnia-cyan font-bold">
+            {allEvents.length} events
           </span>
         </div>
       </div>
