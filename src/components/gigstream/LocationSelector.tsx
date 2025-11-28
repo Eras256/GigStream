@@ -165,11 +165,11 @@ export default function LocationSelector({
     : value || ''
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative z-[9999] ${className}`}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 backdrop-blur-xl focus:ring-somnia-purple/20 transition-all duration-300 font-mono flex items-center justify-between"
+        className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 backdrop-blur-xl focus:ring-somnia-purple/20 transition-all duration-300 font-mono flex items-center justify-between relative z-[9999]"
       >
         <div className="flex items-center space-x-2 flex-1 text-left">
           <MapPin className="w-4 h-4 text-white/70 flex-shrink-0" />
@@ -184,20 +184,35 @@ export default function LocationSelector({
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute z-50 w-full mt-2 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl shadow-2xl max-h-96 overflow-hidden"
-          >
+          <>
+            {/* Overlay to close on outside click - debe estar antes del dropdown */}
+            <div
+              className="fixed inset-0 z-[9998] bg-transparent"
+              onClick={() => setIsOpen(false)}
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute z-[9999] w-full mt-2 backdrop-blur-2xl bg-gradient-to-br from-somnia-dark/95 via-somnia-dark/90 to-somnia-dark/95 border-2 border-somnia-purple/50 rounded-xl shadow-2xl max-h-[60vh] md:max-h-96 overflow-hidden"
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                zIndex: 9999,
+                backgroundColor: 'rgba(15, 15, 25, 0.98)',
+              }}
+            >
             {/* Search */}
-            <div className="p-3 border-b border-white/10">
+            <div className="p-3 border-b border-white/20 bg-white/5">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search country or city..."
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:border-somnia-purple/50 text-sm"
+                className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-2 text-white placeholder-white/60 focus:outline-none focus:border-somnia-purple/70 focus:bg-white/25 text-sm backdrop-blur-sm"
                 autoFocus
               />
             </div>
@@ -209,8 +224,8 @@ export default function LocationSelector({
                   <button
                     type="button"
                     onClick={() => handleCountrySelect(country)}
-                    className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between ${
-                      selectedCountry?.code === country.code ? 'bg-somnia-purple/20' : ''
+                    className={`w-full px-4 py-3 text-left hover:bg-white/15 transition-colors flex items-center justify-between ${
+                      selectedCountry?.code === country.code ? 'bg-somnia-purple/40 border-l-2 border-somnia-purple' : ''
                     }`}
                   >
                     <div className="flex items-center space-x-2">
@@ -233,20 +248,20 @@ export default function LocationSelector({
                         {country.code === 'AU' && '🇦🇺'}
                         {!['MX', 'US', 'CA', 'CO', 'AR', 'BR', 'CL', 'PE', 'ES', 'GB', 'FR', 'DE', 'IN', 'CN', 'JP', 'AU'].includes(country.code) && '🌍'}
                       </span>
-                      <span className="text-white font-medium">{country.name}</span>
+                      <span className="text-white font-semibold">{country.name}</span>
                     </div>
                   </button>
                   
                   {/* Cities for selected country */}
                   {selectedCountry?.code === country.code && (
-                    <div className="pl-8 pr-4 pb-2 space-y-1">
+                    <div className="pl-8 pr-4 pb-2 space-y-1 bg-somnia-dark/50">
                       {country.cities.map((city) => (
                         <button
                           key={city}
                           type="button"
                           onClick={() => handleCitySelect(city)}
-                          className={`w-full px-3 py-2 text-left text-sm rounded-lg hover:bg-white/10 transition-colors ${
-                            selectedCity === city ? 'bg-mx-green/20 text-mx-green' : 'text-white/80'
+                          className={`w-full px-3 py-2 text-left text-sm rounded-lg hover:bg-white/15 transition-colors font-medium ${
+                            selectedCity === city ? 'bg-mx-green/30 text-mx-green font-semibold border-l-2 border-mx-green' : 'text-white/90'
                           }`}
                         >
                           {city}
@@ -258,16 +273,9 @@ export default function LocationSelector({
               ))}
             </div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
-
-      {/* Overlay to close on outside click */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
     </div>
   )
 }
