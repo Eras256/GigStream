@@ -341,14 +341,14 @@ export async function GET(req: NextRequest) {
                   jobId: log.args.jobId?.toString() || '',
                   employer: log.args.employer || '',
                   refundAmount: log.args.refundAmount?.toString() || '0',
-                  blockNumber: log.blockNumber?.toString(),
-                  transactionHash: log.transactionHash
+                      blockNumber: log.blockNumber?.toString(),
+                      transactionHash: log.transactionHash
                 }
 
                 // Stream the event to client
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify(cancellationData)}\n\n`)
-                )
+                  )
 
                 // Publish to Data Streams (async, non-blocking)
                 publishJobCancelledToSDS({

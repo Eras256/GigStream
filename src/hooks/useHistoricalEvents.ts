@@ -52,51 +52,49 @@ export function useHistoricalEvents(): UseHistoricalEventsResult {
         const currentBlock = await publicClient.getBlockNumber()
         console.log('[useHistoricalEvents] Current block:', currentBlock.toString())
         
-        // Try to get events from a wider range - last 10000 blocks (approximately last few hours)
-        const fromBlock = currentBlock > 10000n ? currentBlock - 10000n : 0n
-        console.log('[useHistoricalEvents] Fetching events from block', fromBlock.toString(), 'to', currentBlock.toString())
+        // Somnia RPC has a limit of 1000 blocks per request
+        // Fetch events in chunks of 1000 blocks
+        const CHUNK_SIZE = 1000n
+        const MAX_BLOCKS_TO_SEARCH = 5000n // Last ~5000 blocks (approximately last few hours)
+        const fromBlock = currentBlock > MAX_BLOCKS_TO_SEARCH ? currentBlock - MAX_BLOCKS_TO_SEARCH : 0n
+        
+        console.log('[useHistoricalEvents] Fetching events from block', fromBlock.toString(), 'to', currentBlock.toString(), 'in chunks of', CHUNK_SIZE.toString())
 
-        // Fetch all event types
+        // Helper function to fetch logs in chunks
+        async function fetchLogsInChunks(eventAbi: string, eventName: string) {
+          const allLogs: any[] = []
+          let startBlock = fromBlock
+          
+          while (startBlock < currentBlock) {
+            const endBlock = startBlock + CHUNK_SIZE > currentBlock ? currentBlock : startBlock + CHUNK_SIZE
+            
+            try {
+              const eventAbiParsed = parseAbiItem(eventAbi) as any
+              const logs = await publicClient.getLogs({
+                address: GIGESCROW_ADDRESS,
+                event: eventAbiParsed,
+                fromBlock: startBlock,
+                toBlock: endBlock,
+              })
+              allLogs.push(...logs)
+              console.log(`[useHistoricalEvents] Fetched ${logs.length} ${eventName} events from block ${startBlock.toString()} to ${endBlock.toString()}`)
+            } catch (err) {
+              console.error(`[useHistoricalEvents] Error fetching ${eventName} logs from ${startBlock.toString()} to ${endBlock.toString()}:`, err)
+            }
+            
+            startBlock = endBlock + 1n
+          }
+          
+          return allLogs
+        }
+
+        // Fetch all event types in chunks
         const [jobPostedLogs, bidPlacedLogs, jobCompletedLogs, jobCancelledLogs, reputationLogs] = await Promise.all([
-          // JobPosted events
-          publicClient.getLogs({
-            address: GIGESCROW_ADDRESS,
-            event: parseAbiItem('event JobPosted(uint256 indexed jobId, address indexed employer, string title, uint256 reward, uint256 deadline)'),
-            fromBlock,
-            toBlock: 'latest',
-          }).catch(() => []),
-          
-          // BidPlaced events
-          publicClient.getLogs({
-            address: GIGESCROW_ADDRESS,
-            event: parseAbiItem('event BidPlaced(uint256 indexed jobId, address indexed worker, uint256 bid, uint256 timestamp)'),
-            fromBlock,
-            toBlock: 'latest',
-          }).catch(() => []),
-          
-          // JobCompleted events
-          publicClient.getLogs({
-            address: GIGESCROW_ADDRESS,
-            event: parseAbiItem('event JobCompleted(uint256 indexed jobId, address indexed worker, uint256 reward)'),
-            fromBlock,
-            toBlock: 'latest',
-          }).catch(() => []),
-          
-          // JobCancelled events
-          publicClient.getLogs({
-            address: GIGESCROW_ADDRESS,
-            event: parseAbiItem('event JobCancelled(uint256 indexed jobId, address indexed employer, uint256 refundAmount)'),
-            fromBlock,
-            toBlock: 'latest',
-          }).catch(() => []),
-          
-          // ReputationUpdated events
-          publicClient.getLogs({
-            address: GIGESCROW_ADDRESS,
-            event: parseAbiItem('event ReputationUpdated(address indexed user, uint256 newReputation)'),
-            fromBlock,
-            toBlock: 'latest',
-          }).catch(() => []),
+          fetchLogsInChunks('event JobPosted(uint256 indexed jobId, address indexed employer, string title, uint256 reward, uint256 deadline)', 'JobPosted'),
+          fetchLogsInChunks('event BidPlaced(uint256 indexed jobId, address indexed worker, uint256 bid, uint256 timestamp)', 'BidPlaced'),
+          fetchLogsInChunks('event JobCompleted(uint256 indexed jobId, address indexed worker, uint256 reward)', 'JobCompleted'),
+          fetchLogsInChunks('event JobCancelled(uint256 indexed jobId, address indexed employer, uint256 refundAmount)', 'JobCancelled'),
+          fetchLogsInChunks('event ReputationUpdated(address indexed user, uint256 newReputation)', 'ReputationUpdated'),
         ])
 
         const allEvents: StreamEvent[] = []
