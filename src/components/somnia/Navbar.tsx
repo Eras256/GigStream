@@ -261,105 +261,128 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-somnia-dark/95 backdrop-blur-2xl z-40 pt-20"
+            className="lg:hidden fixed inset-0 bg-somnia-dark z-50 pt-20"
+            onClick={() => setIsMenuOpen(false)}
           >
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="h-full overflow-y-auto px-4 sm:px-6 py-6 sm:py-8"
+              className="h-full overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 pb-24"
+              onClick={(e) => e.stopPropagation()}
             >
-              {menuItems.map((item, idx) => (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="mb-4 sm:mb-6"
+              {/* Close Button */}
+              <div className="flex justify-end mb-6">
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  aria-label="Close menu"
                 >
-                  <Link
-                    href={item.href}
-                    onClick={(e) => {
-                      if (item.href.includes('#')) {
-                        const hashPart = item.href.split('#')[1]
-                        if (hashPart) {
-                          e.preventDefault()
-                          // If it's a different page, navigate first then scroll
-                          if (item.href.startsWith('/')) {
-                            const [path, hash] = item.href.split('#')
-                            window.location.href = path
-                            setTimeout(() => {
-                              const element = document.querySelector(`#${hash}`)
-                              if (element) {
-                                element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                              }
-                            }, 100)
-                          } else {
-                            handleLinkClick(`#${hashPart}`)
-                          }
-                        }
-                      } else {
-                        setIsMenuOpen(false)
-                      }
-                    }}
-                    className="text-xl sm:text-2xl font-bold text-white hover:text-[#00D4FF] transition-colors mb-2 flex items-center space-x-2"
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
+
+              {/* Menu Items */}
+              <div className="space-y-1">
+                {menuItems.map((item, idx) => (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="mb-1"
                   >
-                    {item.icon && <item.icon className="w-5 h-5 sm:w-6 sm:h-6" />}
-                    <span>{item.name}</span>
-                  </Link>
-                  {item.submenu && (
-                    <div className="ml-4 sm:ml-6 space-y-2 mt-2">
-                      {item.submenu.map((sub) => (
-                        <Link
-                          key={sub.name}
-                          href={sub.href}
-                          target={sub.external ? '_blank' : undefined}
-                          onClick={(e) => {
-                            if (!sub.external) {
-                              if (sub.href.includes('#')) {
-                                const hashPart = sub.href.split('#')[1]
-                                if (hashPart) {
-                                  e.preventDefault()
-                                  // If it's a different page, navigate first then scroll
-                                  if (sub.href.startsWith('/')) {
-                                    const [path, hash] = sub.href.split('#')
-                                    window.location.href = path
-                                    setTimeout(() => {
-                                      const element = document.querySelector(`#${hash}`)
-                                      if (element) {
-                                        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                      }
-                                    }, 100)
-                                  } else {
-                                    handleLinkClick(`#${hashPart}`)
-                                  }
+                    <Link
+                      href={item.href}
+                      onClick={(e) => {
+                        if (item.href.includes('#')) {
+                          const hashPart = item.href.split('#')[1]
+                          if (hashPart) {
+                            e.preventDefault()
+                            // If it's a different page, navigate first then scroll
+                            if (item.href.startsWith('/')) {
+                              const [path, hash] = item.href.split('#')
+                              window.location.href = path
+                              setTimeout(() => {
+                                const element = document.querySelector(`#${hash}`)
+                                if (element) {
+                                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
                                 }
-                              } else {
-                                setIsMenuOpen(false)
-                              }
+                              }, 100)
+                            } else {
+                              handleLinkClick(`#${hashPart}`)
                             }
-                          }}
-                          className="text-base sm:text-lg text-white/70 hover:text-[#00D4FF] transition-colors flex items-center space-x-2 py-1"
-                        >
-                          {sub.icon && <sub.icon className="w-4 h-4" />}
-                          <span>{sub.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-              <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
+                          }
+                        } else {
+                          setIsMenuOpen(false)
+                        }
+                      }}
+                      className="flex items-center space-x-3 px-4 py-3 rounded-xl text-lg sm:text-xl font-bold text-white hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/20"
+                    >
+                      {item.icon && <item.icon className="w-5 h-5 sm:w-6 flex-shrink-0" />}
+                      <span>{item.name}</span>
+                    </Link>
+                    {item.submenu && (
+                      <div className="ml-4 sm:ml-6 mt-1 space-y-1">
+                        {item.submenu.map((sub) => (
+                          <Link
+                            key={sub.name}
+                            href={sub.href}
+                            target={sub.external ? '_blank' : undefined}
+                            onClick={(e) => {
+                              if (!sub.external) {
+                                if (sub.href.includes('#')) {
+                                  const hashPart = sub.href.split('#')[1]
+                                  if (hashPart) {
+                                    e.preventDefault()
+                                    // If it's a different page, navigate first then scroll
+                                    if (sub.href.startsWith('/')) {
+                                      const [path, hash] = sub.href.split('#')
+                                      window.location.href = path
+                                      setTimeout(() => {
+                                        const element = document.querySelector(`#${hash}`)
+                                        if (element) {
+                                          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                                        }
+                                      }, 100)
+                                    } else {
+                                      handleLinkClick(`#${hashPart}`)
+                                    }
+                                  }
+                                } else {
+                                  setIsMenuOpen(false)
+                                }
+                              }
+                            }}
+                            className="flex items-center space-x-2 px-4 py-2 rounded-lg text-base sm:text-lg text-white/80 hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/20"
+                          >
+                            {sub.icon && <sub.icon className="w-4 h-4 flex-shrink-0" />}
+                            <span>{sub.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-8 pt-6 border-t border-white/20 space-y-3">
                 {!isConnected && (
                   <div className="w-full">
                     <appkit-button />
                   </div>
                 )}
+                {!isConnected && (
+                  <div className="w-full pb-2">
+                    <appkit-button />
+                  </div>
+                )}
                 {isGigStreamPage ? (
-                  <Link href="/gigstream/post" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/gigstream/post" onClick={() => setIsMenuOpen(false)} className="block">
                     <motion.button
-                      className="w-full px-6 py-3 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold flex items-center justify-center space-x-2 text-sm sm:text-base"
+                      className="w-full px-6 py-4 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold flex items-center justify-center space-x-2 text-base shadow-lg"
                       whileTap={{ scale: 0.95 }}
                     >
                       <Plus className="w-5 h-5" />
@@ -367,9 +390,9 @@ export default function Navbar() {
                     </motion.button>
                   </Link>
                 ) : (
-                  <Link href="/gigstream" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/gigstream" onClick={() => setIsMenuOpen(false)} className="block">
                     <motion.button
-                      className="w-full px-6 py-3 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold text-sm sm:text-base"
+                      className="w-full px-6 py-4 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold text-base shadow-lg"
                       whileTap={{ scale: 0.95 }}
                     >
                       Get Started
