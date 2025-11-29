@@ -24,6 +24,18 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMenuOpen])
+
   const handleLinkClick = (href: string) => {
     if (href.startsWith('#')) {
       const element = document.querySelector(href)
@@ -257,23 +269,33 @@ export default function Navbar() {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-blue-900 z-50 pt-20"
-            onClick={() => setIsMenuOpen(false)}
-          >
+          <>
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="lg:hidden fixed inset-0 bg-black/80 z-[45]"
+            />
+            {/* Mobile Menu Panel */}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="h-full overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 pb-24"
-              onClick={(e) => e.stopPropagation()}
+              className="lg:hidden fixed inset-y-0 left-0 w-[85vw] max-w-sm bg-somnia-dark z-[50] shadow-2xl border-r border-somnia-cyan/20"
             >
-              {/* Close Button */}
-              <div className="flex justify-end mb-6">
+              {/* Mobile Menu Header */}
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/10">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#00D4FF] to-[#7B00FF] rounded-lg flex items-center justify-center">
+                    <Zap className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+                  </div>
+                  <span className="text-lg sm:text-xl font-black bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] bg-clip-text text-transparent">
+                    GigStream
+                  </span>
+                </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -283,15 +305,15 @@ export default function Navbar() {
                 </button>
               </div>
 
-              {/* Menu Items */}
-              <div className="space-y-1">
+              {/* Mobile Menu Content */}
+              <div className="h-[calc(100vh-5rem)] overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
                 {menuItems.map((item, idx) => (
                   <motion.div
                     key={item.name}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="mb-1"
+                    className="mb-3 sm:mb-4"
                   >
                     <Link
                       href={item.href}
@@ -318,14 +340,14 @@ export default function Navbar() {
                           setIsMenuOpen(false)
                         }
                       }}
-                      className="flex items-center space-x-3 px-4 py-3 rounded-xl text-lg sm:text-xl font-bold text-white hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/20"
+                      className="flex items-center space-x-3 px-4 py-3 rounded-xl text-lg sm:text-xl font-bold text-white hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/5"
                     >
-                      {item.icon && <item.icon className="w-5 h-5 sm:w-6 flex-shrink-0" />}
+                      {item.icon && <item.icon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />}
                       <span>{item.name}</span>
                     </Link>
                     {item.submenu && (
-                      <div className="ml-4 sm:ml-6 mt-1 space-y-1">
-                        {item.submenu.map((sub) => (
+                      <div className="ml-4 sm:ml-6 mt-2 space-y-1">
+                        {item.submenu.map((sub, subIdx) => (
                           <Link
                             key={sub.name}
                             href={sub.href}
@@ -355,7 +377,7 @@ export default function Navbar() {
                                 }
                               }
                             }}
-                            className="flex items-center space-x-2 px-4 py-2 rounded-lg text-base sm:text-lg text-white/80 hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/20"
+                            className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-base sm:text-lg text-white/80 hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/5"
                           >
                             {sub.icon && <sub.icon className="w-4 h-4 flex-shrink-0" />}
                             <span>{sub.name}</span>
@@ -365,43 +387,59 @@ export default function Navbar() {
                     )}
                   </motion.div>
                 ))}
-              </div>
+                
+                {/* Divider */}
+                <div className="my-6 sm:my-8 border-t border-white/10" />
 
-              {/* Action Buttons */}
-              <div className="mt-8 pt-6 border-t border-white/20 space-y-3">
-                {!isConnected && (
-                  <div className="w-full">
-                    <appkit-button />
-                  </div>
-                )}
-                {!isConnected && (
-                  <div className="w-full pb-2">
-                    <appkit-button />
-                  </div>
-                )}
-                {isGigStreamPage ? (
-                  <Link href="/gigstream/post" onClick={() => setIsMenuOpen(false)} className="block">
-                    <motion.button
-                      className="w-full px-6 py-4 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold flex items-center justify-center space-x-2 text-base shadow-lg"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span>Post Job</span>
-                    </motion.button>
-                  </Link>
-                ) : (
-                  <Link href="/gigstream" onClick={() => setIsMenuOpen(false)} className="block">
-                    <motion.button
-                      className="w-full px-6 py-4 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold text-base shadow-lg"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Get Started
-                    </motion.button>
-                  </Link>
-                )}
+                {/* Mobile Menu Actions */}
+                <div className="space-y-3">
+                  {!isConnected && (
+                    <div className="w-full px-4">
+                      <appkit-button />
+                    </div>
+                  )}
+                  {isConnected && (
+                    <div className="px-4 py-3 bg-white/5 rounded-xl border border-white/10">
+                      <div className="text-xs text-white/60 mb-1">Connected Wallet</div>
+                      <div className="text-sm font-mono text-white break-all">
+                        {address?.slice(0, 8)}...{address?.slice(-6)}
+                      </div>
+                      <motion.button
+                        onClick={() => {
+                          disconnect()
+                          setIsMenuOpen(false)
+                        }}
+                        className="mt-3 w-full px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-white font-bold text-sm transition-all"
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Disconnect
+                      </motion.button>
+                    </div>
+                  )}
+                  {isGigStreamPage ? (
+                    <Link href="/gigstream/post" onClick={() => setIsMenuOpen(false)} className="block px-4">
+                      <motion.button
+                        className="w-full px-6 py-3.5 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold flex items-center justify-center space-x-2 text-base shadow-neural-glow"
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span>Post Job</span>
+                      </motion.button>
+                    </Link>
+                  ) : (
+                    <Link href="/gigstream" onClick={() => setIsMenuOpen(false)} className="block px-4">
+                      <motion.button
+                        className="w-full px-6 py-3.5 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold text-base shadow-neural-glow"
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Get Started
+                      </motion.button>
+                    </Link>
+                  )}
+                </div>
               </div>
             </motion.div>
-          </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.nav>
