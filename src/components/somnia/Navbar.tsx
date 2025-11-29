@@ -261,7 +261,7 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-somnia-dark z-50 pt-20"
+            className="lg:hidden fixed inset-0 bg-blue-900 z-50 pt-20"
             onClick={() => setIsMenuOpen(false)}
           >
             <motion.div
