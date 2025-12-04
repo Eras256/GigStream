@@ -1,0 +1,105 @@
+# Workflow to verify compliance with GitHub policies
+# Runs automatic checks before merging PRs
+
+name: Compliance Verification
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  security-check:
+    name: Security Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify sensitive information
+        run: |
+          echo "Verifying no sensitive information in code..."
+          # Check for hardcoded API keys
+          if grep -r "api[_-]key" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ contracts/; then
+            echo "⚠️ WARNING: Possible API keys found in code"
+            echo "Please ensure you use environment variables"
+          fi
+          
+          # Check for passwords
+          if grep -ri "password\s*=\s*['\"].*['\"]" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ contracts/; then
+            echo "❌ ERROR: Hardcoded passwords found"
+            exit 1
+          fi
+          
+          # Check for private keys
+          if grep -ri "private[_-]key\s*=\s*['\"].*['\"]" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ contracts/; then
+            echo "❌ ERROR: Private keys found in code"
+            exit 1
+          fi
+          
+          echo "✅ Security verification completed"
+
+      - name: Verify .env.local is not committed
+        run: |
+          if git ls-files | grep -q "\.env\.local"; then
+            echo "❌ ERROR: .env.local should not be in the repository"
+            exit 1
+          fi
+          echo "✅ .env.local is not in the repository"
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linter
+        run: pnpm run lint
+
+      - name: Verify types
+        run: pnpm run type-check
+
+  policy-compliance:
+    name: Policy Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify policy files
+        run: |
+          echo "Verifying required policy files exist..."
+          required_files=("CODE_OF_CONDUCT.md" "CONTRIBUTING.md" "SECURITY.md")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ ERROR: Missing file $file"
+              exit 1
+            fi
+          done
+          echo "✅ All policy files are present"
+
+      - name: Verify README references policies
+        run: |
+          if ! grep -q "CODE_OF_CONDUCT\|CONTRIBUTING\|SECURITY" README.md; then
+            echo "⚠️ WARNING: README.md should reference policy files"
+          else
+            echo "✅ README.md references policies"
+          fi

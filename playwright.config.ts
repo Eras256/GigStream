@@ -1,4 +1,6 @@
 // playwright.config.ts - Full E2E Coverage
+// Configuración de pruebas E2E con Playwright
+// Cumple con las políticas de GitHub - no contiene información sensible
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({

@@ -329,97 +329,97 @@ export default function Navbar() {
 
               {/* Mobile Menu Content */}
               <div className="h-[calc(100vh-5rem)] overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
-                {menuItems.map((item, idx) => (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+              {menuItems.map((item, idx) => (
+                <motion.div
+                  key={item.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     className="mb-3 sm:mb-4"
-                  >
-                    <Link
-                      href={item.href}
-                      onClick={(e) => {
-                        if (item.href.includes('#')) {
-                          const hashPart = item.href.split('#')[1]
-                          if (hashPart) {
-                            e.preventDefault()
-                            // If it's a different page, navigate first then scroll
-                            if (item.href.startsWith('/')) {
-                              const [path, hash] = item.href.split('#')
-                              window.location.href = path
-                              setTimeout(() => {
-                                const element = document.querySelector(`#${hash}`)
-                                if (element) {
-                                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                }
-                              }, 100)
-                            } else {
-                              handleLinkClick(`#${hashPart}`)
-                            }
+                >
+                  <Link
+                    href={item.href}
+                    onClick={(e) => {
+                      if (item.href.includes('#')) {
+                        const hashPart = item.href.split('#')[1]
+                        if (hashPart) {
+                          e.preventDefault()
+                          // If it's a different page, navigate first then scroll
+                          if (item.href.startsWith('/')) {
+                            const [path, hash] = item.href.split('#')
+                            window.location.href = path
+                            setTimeout(() => {
+                              const element = document.querySelector(`#${hash}`)
+                              if (element) {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                              }
+                            }, 100)
+                          } else {
+                            handleLinkClick(`#${hashPart}`)
                           }
-                        } else {
-                          setIsMenuOpen(false)
                         }
-                      }}
+                      } else {
+                        setIsMenuOpen(false)
+                      }
+                    }}
                       className="flex items-center space-x-3 px-4 py-3 rounded-xl text-lg sm:text-xl font-bold text-white hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/5"
-                    >
+                  >
                       {item.icon && <item.icon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />}
-                      <span>{item.name}</span>
-                    </Link>
-                    {item.submenu && (
+                    <span>{item.name}</span>
+                  </Link>
+                  {item.submenu && (
                       <div className="ml-4 sm:ml-6 mt-2 space-y-1">
                         {item.submenu.map((sub, subIdx) => (
-                          <Link
-                            key={sub.name}
-                            href={sub.href}
-                            target={sub.external ? '_blank' : undefined}
-                            onClick={(e) => {
-                              if (!sub.external) {
-                                if (sub.href.includes('#')) {
-                                  const hashPart = sub.href.split('#')[1]
-                                  if (hashPart) {
-                                    e.preventDefault()
-                                    // If it's a different page, navigate first then scroll
-                                    if (sub.href.startsWith('/')) {
-                                      const [path, hash] = sub.href.split('#')
-                                      window.location.href = path
-                                      setTimeout(() => {
-                                        const element = document.querySelector(`#${hash}`)
-                                        if (element) {
-                                          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                        }
-                                      }, 100)
-                                    } else {
-                                      handleLinkClick(`#${hashPart}`)
-                                    }
+                        <Link
+                          key={sub.name}
+                          href={sub.href}
+                          target={sub.external ? '_blank' : undefined}
+                          onClick={(e) => {
+                            if (!sub.external) {
+                              if (sub.href.includes('#')) {
+                                const hashPart = sub.href.split('#')[1]
+                                if (hashPart) {
+                                  e.preventDefault()
+                                  // If it's a different page, navigate first then scroll
+                                  if (sub.href.startsWith('/')) {
+                                    const [path, hash] = sub.href.split('#')
+                                    window.location.href = path
+                                    setTimeout(() => {
+                                      const element = document.querySelector(`#${hash}`)
+                                      if (element) {
+                                        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                                      }
+                                    }, 100)
+                                  } else {
+                                    handleLinkClick(`#${hashPart}`)
                                   }
-                                } else {
-                                  setIsMenuOpen(false)
                                 }
+                              } else {
+                                setIsMenuOpen(false)
                               }
-                            }}
+                            }
+                          }}
                             className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-base sm:text-lg text-white/80 hover:bg-white/10 hover:text-[#00D4FF] transition-all duration-200 active:bg-white/5"
-                          >
+                        >
                             {sub.icon && <sub.icon className="w-4 h-4 flex-shrink-0" />}
-                            <span>{sub.name}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
+                          <span>{sub.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
                 
                 {/* Divider */}
                 <div className="my-6 sm:my-8 border-t border-white/10" />
 
                 {/* Mobile Menu Actions */}
                 <div className="space-y-3">
-                  {!isConnected && (
+                {!isConnected && (
                     <div className="w-full px-4">
-                      <appkit-button />
-                    </div>
-                  )}
+                    <appkit-button />
+                  </div>
+                )}
                   {isConnected && (
                     <div className="px-4 py-3 bg-white/5 rounded-xl border border-white/10">
                       <div className="text-xs text-white/60 mb-1">Connected Wallet</div>
@@ -438,26 +438,26 @@ export default function Navbar() {
                       </motion.button>
                     </div>
                   )}
-                  {isGigStreamPage ? (
+                {isGigStreamPage ? (
                     <Link href="/gigstream/post" onClick={() => setIsMenuOpen(false)} className="block px-4">
-                      <motion.button
+                    <motion.button
                         className="w-full px-6 py-3.5 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold flex items-center justify-center space-x-2 text-base shadow-neural-glow"
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Plus className="w-5 h-5" />
-                        <span>Post Job</span>
-                      </motion.button>
-                    </Link>
-                  ) : (
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Post Job</span>
+                    </motion.button>
+                  </Link>
+                ) : (
                     <Link href="/gigstream" onClick={() => setIsMenuOpen(false)} className="block px-4">
-                      <motion.button
+                    <motion.button
                         className="w-full px-6 py-3.5 bg-gradient-to-r from-[#00D4FF] to-[#7B00FF] rounded-xl text-white font-bold text-base shadow-neural-glow"
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Get Started
-                      </motion.button>
-                    </Link>
-                  )}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Get Started
+                    </motion.button>
+                  </Link>
+                )}
                 </div>
               </div>
             </motion.div>

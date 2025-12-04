@@ -261,13 +261,13 @@ export default function LiveEventsPanel({
                       <div className="flex items-center space-x-1">
                         <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white/40" />
                         <span className="text-[10px] sm:text-xs text-white/50 font-mono">
-                          {event.receivedAt 
-                            ? formatDistanceToNow(new Date(event.receivedAt), { 
-                                addSuffix: true, 
-                                locale: enUS 
-                              })
-                            : 'Just now'}
-                        </span>
+                        {event.receivedAt 
+                          ? formatDistanceToNow(new Date(event.receivedAt), { 
+                              addSuffix: true, 
+                              locale: enUS 
+                            })
+                          : 'Just now'}
+                      </span>
                       </div>
                       {event.transactionHash && (
                         <a
