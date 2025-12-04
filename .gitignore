@@ -26,13 +26,34 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local env files (NEVER commit these!)
+# IMPORTANT: Complies with GitHub security policies
+# Do not commit files with sensitive information (API keys, passwords, tokens)
 .env*.local
 .env
 .env.production
+.env.development
+.env.test
 
 # env.example SHOULD be versioned (it's a template)
 # Remove env.example from ignore if you want to track it
 # env.example
+
+# Files with sensitive information (GitHub Policies)
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+secrets/
+.secrets/
+*.secret
+*secret*
+private-keys/
+.private/
+credentials.json
+config.json
+secrets.json
 
 # Vercel
 .vercel

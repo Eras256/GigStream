@@ -608,6 +608,28 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Policies and Guidelines
+
+This project strictly complies with official GitHub policies. Please review and follow:
+
+- **[Code of Conduct](./CODE_OF_CONDUCT.md)**: Expected behavior standards in the community
+- **[Contributing Guide](./CONTRIBUTING.md)**: How to contribute to the project
+- **[Security Policy](./SECURITY.md)**: How to report security vulnerabilities
+
+#### GitHub Policies We Comply With
+
+- ✅ [GitHub Community Guidelines](https://docs.github.com/en/site-policy/github-terms/github-community-guidelines)
+- ✅ [Acceptable Use Policies](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies)
+- ✅ [Security Policies](https://docs.github.com/en/site-policy/security-policies)
+
+**Important**: Before committing or pushing, make sure to:
+- ❌ DO NOT include API keys, passwords, or private tokens
+- ❌ DO NOT include personal user information
+- ❌ DO NOT include content that violates copyright
+- ❌ DO NOT include malicious code or spam
+- ✅ Use environment variables for credentials
+- ✅ Verify that `.env.local` is not in the repository
+
 ---
 
 ## 📄 License
