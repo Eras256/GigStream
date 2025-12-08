@@ -30,7 +30,7 @@
     "@reown/appkit-adapter-wagmi": "^1.8.14",
     "@somnia-chain/streams": "^0.11.0",
     "@tanstack/react-query": "^5.0.0",
-    "@wagmi/core": "^2.22.1",
+    "@wagmi/core": "^3.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^4.1.0",
