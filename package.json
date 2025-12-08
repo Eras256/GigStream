@@ -23,7 +23,7 @@
     "deploy:full": "pnpm run build && pnpm run contracts:deploy-testnet && pnpm run deploy:vercel"
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.0.0",
+    "@ai-sdk/google": "^2.0.44",
     "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-slot": "^1.0.2",
     "@reown/appkit": "^1.8.14",
